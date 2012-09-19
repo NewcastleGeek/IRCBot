@@ -86,6 +86,8 @@ public class URLGrabber implements Runnable {
     private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/(www\\.)?twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
     // Regex pattern to match YouTube videos
     private static final Pattern YOUTUBE_VIDEO = Pattern.compile("http:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
+ // Regex pattern to match Vimeo videos
+    private static final Pattern VIMEO_VIDEO = Pattern.compile("http:\\/\\/(www.)?vimeo\\.com\\/[0-9]+");
 
     /**
      * Content-Type class definition
@@ -402,7 +404,34 @@ public class URLGrabber implements Runnable {
             return;
         }
     }
+    
+    /**
+     * Prints the title and duration of a Vimeo video to a specified channel
+     * @param vimeoURL the URL to process
+     */
+    private void returnVimeoVideo(URL vimeoURL) {
+        URL appendURL = null;
 
+        // Construct the URL to read the JSON data from
+        try {
+            appendURL = new URL("http://vimeo.com/api/v2/video/" + url.toString().substring(url.toString().lastIndexOf("/") + 1) + ".json");
+            VimeoLink link = VimeoLink.getLink(appendURL);
+            event.getBot().sendMessage(event.getChannel(), "[Vimeo by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (uploaded by " + link.getUploader() + ", " + link.getReadableDuration() + ")");
+            return;
+        } catch (MalformedURLException ex) {
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
+            return;
+        } catch (IOException ex) {
+            if(ex.getMessage().equals("Server returned response code: 404")) {
+                event.getBot().sendMessage(event.getChannel(), formatError("Vimeo", "Vimeo video ID invalid or video is private."));
+            }
+        } catch (Exception ex) {
+            event.getBot().sendMessage(event.getChannel(), formatError("Vimeo", ex.getMessage()));
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
+            return;
+        }
+    }
+    
     /**
      * Method that executes upon thread start
      * (non-Javadoc)
@@ -436,6 +465,11 @@ public class URLGrabber implements Runnable {
         urlMatcher = YOUTUBE_VIDEO.matcher(url.toString());
         if(urlMatcher.find()) {
             returnYouTubeVideo(url);
+            return;
+        }
+        urlMatcher = VIMEO_VIDEO.matcher(url.toString());
+        if(urlMatcher.find()) {
+            returnVimeoVideo(url);
             return;
         }
         // If none of the regex patterns matched, then get the page title/length
