@@ -52,6 +52,7 @@ public class YouTubeLink {
      * Variables
      */
     private String title;
+    private String uploader;
     private long duration;
 
     /**
@@ -65,8 +66,9 @@ public class YouTubeLink {
      * @param title the video's title
      * @param duration the video's duration
      */
-    public YouTubeLink(String title, long duration) {
+    public YouTubeLink(String title, String uploader, long duration) {
         this.title = title;
+        this.uploader = uploader;
         this.duration = duration;
     }
 
@@ -109,7 +111,7 @@ public class YouTubeLink {
         JSONObject parsedArray = new JSONObject(jsonToParse.toString());
         if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
             JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
-            return new YouTubeLink(IRCUtils.escapeHTMLEntities(youtubeLink.getString("title")), youtubeLink.getLong("duration"));
+            return new YouTubeLink(IRCUtils.escapeHTMLEntities(youtubeLink.getString("title")), youtubeLink.getString("uploader"), youtubeLink.getLong("duration"));
         } else {
             throw new NoSuchElementException("YouTube video ID invalid or video is private.");
         }
@@ -121,6 +123,14 @@ public class YouTubeLink {
      */
     public String getTitle() {
         return title;
+    }
+    
+    /**
+     * Returns the video's uploader
+     * @return the video's uploader
+     */
+    public String getUploader() {
+        return uploader;
     }
 
     /**
