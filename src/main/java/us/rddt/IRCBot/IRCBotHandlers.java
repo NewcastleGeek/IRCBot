@@ -274,8 +274,8 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @param event the InviteEvent to parse
      */
     public void onInvite(InviteEvent<PircBotX> event) {
-        if(event.getUser().equals(Configuration.getAdminNick())) event.getBot().joinChannel(event.getChannel());
-        return;
+        Configuration.getLogger().write(Level.INFO, "Joining channel " + event.getChannel());
+        event.getBot().joinChannel(event.getChannel());
     }
     
     /**
