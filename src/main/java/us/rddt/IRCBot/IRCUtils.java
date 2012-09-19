@@ -33,9 +33,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.pircbotx.Channel;
 
 /**
  * Utilities and helper methods that are called in various functions of the bot.
@@ -71,9 +73,10 @@ public class IRCUtils {
     
     /**
      * Restart the current Java application
+     * @param channels the channels to join to when the bot restarts
      * @throws URISyntaxException 
      */
-    public static void restartApplication() throws IOException, URISyntaxException
+    public static void restartApplication(Set<Channel> channels) throws IOException, URISyntaxException
     {
       final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
       final File currentJar = new File(IRCBot.class.getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -87,6 +90,9 @@ public class IRCUtils {
       command.add(javaBin);
       command.add("-jar");
       command.add(currentJar.getPath());
+      for(Channel c : channels) {
+          command.add(c.getName());
+      }
 
       final ProcessBuilder builder = new ProcessBuilder(command);
       builder.start();

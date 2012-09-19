@@ -71,7 +71,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
         // Automatically split messages longer than IRC's size limit
         bot.setAutoSplitMessage(true);
         // Connect to the IRC server
-        connect(bot);
+        connect(bot, args);
         // Create the scheduler for watching subreddits
         Configuration.startScheduler(bot);
         // Add a shutdown handler to attempt to properly disconnect from the server upon shutdown
@@ -85,8 +85,9 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
     /**
      * Connects to the IRC server
      * @param bot the IRC bot
+     * @param channels the channels to join (ignores the bot's configuration)
      */
-    private static void connect(PircBotX bot) {
+    private static void connect(PircBotX bot, String[] channels) {
         // Attempt to connect to the server and join the required channel(s)
         Configuration.getLogger().write(Level.INFO, "Connecting to " + Configuration.getServer() + " and joining channel(s).");
         try {
@@ -106,7 +107,11 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
             System.exit(-1);
         }
         bot.sendRawLine("MODE " + bot.getNick() + " +B");
-        joinChannels(Configuration.getChannels(), bot);
+        if(channels.length > 0) {
+            joinChannels(channels, bot);
+        } else {
+            joinChannels(Configuration.getChannels(), bot);
+        }
     }
 
     /**
