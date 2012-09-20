@@ -53,7 +53,6 @@ import us.rddt.IRCBot.Handlers.Convert;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
 import us.rddt.IRCBot.Handlers.GameStatus;
-import us.rddt.IRCBot.Handlers.SourceServerQuery;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
