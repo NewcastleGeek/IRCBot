@@ -151,12 +151,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!query ")) {
-            if(!Configuration.getDisabledFunctions().contains("sourcequery")) {
-                new Thread(new SourceServerQuery(event)).start();
-                return true;
-            }
-        }
         if(event.getMessage().startsWith("!steam ")) {
             if(!Configuration.getDisabledFunctions().contains("steamquery")) {
                 new Thread(new SteamUserQuery(event)).start();
