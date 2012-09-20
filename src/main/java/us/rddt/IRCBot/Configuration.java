@@ -97,6 +97,8 @@ public class Configuration {
     private static String log_output;
     
     private static String user_agent;
+    
+    private static String steam_api_key;
 
     /**
      * Loads the configuration provided via a properties file
@@ -133,6 +135,7 @@ public class Configuration {
         }
         log_output = config.getProperty("log_output");
         user_agent = config.getProperty("user_agent");
+        steam_api_key = config.getProperty("steam_api_key");
     }
 
     /**
@@ -363,6 +366,14 @@ public class Configuration {
      */
     public static String getLogFile() {
         return log_output;
+    }
+    
+    /**
+     * Returns the Steam API key
+     * @return the Steam API key
+     */
+    public static String getSteamAPIKey() {
+        return steam_api_key;
     }
     
     /**

@@ -28,7 +28,7 @@
 
 package us.rddt.IRCBot.Handlers;
 
-import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 
 import org.pircbotx.PircBotX;
@@ -36,19 +36,16 @@ import org.pircbotx.hooks.events.MessageEvent;
 
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
-
-import com.github.koraktor.steamcondenser.exceptions.SteamCondenserException;
-import com.github.koraktor.steamcondenser.steam.community.SteamId;
+import us.rddt.IRCBot.Implementations.SteamUser;
 
 /**
- * Queries Valve's Steam service for the status of a given user.
- * 
+ * Queries the Steam Web API to retrieve data for a provided user.
  * @author Ryan Morrison
  */
 public class SteamUserQuery implements Runnable {
     // Variables
     private MessageEvent<PircBotX> event;
-
+    
     /**
      * Class constructor
      * @param event the MessageEvent that triggered this class
@@ -58,23 +55,35 @@ public class SteamUserQuery implements Runnable {
     }
     
     /**
-     * Performs a query on a user and returns basic details
-     * @param user the Steam user string to query
-     * @throws SteamCondenserException if the user's profile cannot be loaded
+     * Builds the string to return the user
+     * @param user the Steam user being queried
+     * @return a string containing the user's status
      */
-    private void doUserQuery(String user) throws SteamCondenserException {
-        // Query Steam for the user
-        SteamId userId = SteamId.create(user);
+    private String buildUserQueryString(SteamUser user) {
+        StringBuilder builder = new StringBuilder();
         
-        // Convert the date since the user's creation into a formatted string
-        String memberSince = new SimpleDateFormat("dd/MM/yyyy").format(userId.getMemberSince());
+        builder.append(user.getPersonaName() + " is ");
+        if(user.getPersonaState() == 0) builder.append(SteamUser.personaStates[user.getPersonaState()] + " (last online: " + IRCUtils.toReadableTime(new Date(user.getLastLogOff() * 1000), false, true) + " ago)");
+        else if(user.getPersonaState() > 4) builder.append("online and is " + SteamUser.personaStates[user.getPersonaState()]);
+        else builder.append(SteamUser.personaStates[user.getPersonaState()]);
+        if(user.getGameExtraInfo() != null) builder.append(", currently in-game: " + user.getGameExtraInfo());
+        if(user.getGameServerIp() != null) builder.append(" (server IP: " + user.getGameServerIp() + ")");
         
-        // Build the string to return to the user
-        StringBuilder builtResponse = new StringBuilder();
-        builtResponse.append("User " + userId.getNickname() + ", member since " + memberSince + ". " + userId.getStateMessage());
-        
-        // Return the string to the user
-        event.respond(builtResponse.toString());
+        return builder.toString();
+    }
+    
+    /**
+     * Checks to see whether the passed Steam ID is a numeric ID or community ID (string)
+     * @param id the ID 
+     * @return true if the ID value is numeric
+     */
+    private boolean isNumericID(String id) {
+        try {
+            Long.parseLong(id);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
     }
     
     /**
@@ -83,11 +92,16 @@ public class SteamUserQuery implements Runnable {
      * @see java.lang.Runnable#run()
      */
     public void run() {
+        SteamUser queriedUser;
+        String givenId = event.getMessage().split(" ")[1];
         try {
-            // Retrieve the user's name to look up from the received message and query it
-            doUserQuery(event.getMessage().split(" ")[1]);
+            if(isNumericID(givenId)) {
+                queriedUser = new SteamUser(Long.parseLong(givenId), true);
+            } else {
+                queriedUser = new SteamUser(givenId, true);
+            }
+            event.respond(buildUserQueryString(queriedUser));
         } catch (Exception ex) {
-            event.respond("Could not load profile: " + ex.getMessage());
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
     }
