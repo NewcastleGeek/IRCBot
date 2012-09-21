@@ -34,6 +34,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -64,7 +66,7 @@ public class SteamUser {
     private int profileState;
     private long lastLogOff;
     private int commentPermission;
-    
+
     // Private Data
     private String realName;
     private long primaryClanId;
@@ -75,9 +77,12 @@ public class SteamUser {
     private String locCountryCode;
     private String locStateCode;
     private int locCityId;
-    
+
     // Persona States
     public static final String personaStates[] = {"offline", "online", "busy", "away", "snooze", "looking to trade", "looking to play"};
+
+    // User ID cache
+    private static volatile Map<String, Long> idCache = new HashMap<String, Long>();
 
     /**
      * Class constructor
@@ -93,7 +98,7 @@ public class SteamUser {
             this.steamId = steamId;
         }
     }
-    
+
     /**
      * Class constructor
      * @param communityName the Steam Community name of the user to query
@@ -108,7 +113,7 @@ public class SteamUser {
     public SteamUser(String communityName, boolean fetchData) throws DOMException, IOException, JSONException, ParserConfigurationException, ParseException, SAXException {
         this(getSteamId64FromName(communityName), fetchData);
     }
-    
+
     /**
      * Queries the Steam Web API for a provided user ID
      * @param steamId the user ID to query
@@ -181,23 +186,37 @@ public class SteamUser {
      */
     private static long getSteamId64FromName(String communityName) throws IOException, DOMException, ParserConfigurationException, ParseException, SAXException {
         /*
-         * Opens a connection to the API
+         * First attempt to return the 64-bit ID from cache. If the user does not exist in the cache, then query
+         * the API for the ID and store it in the cache for future use.
          */
-        HttpURLConnection.setFollowRedirects(false);
-        HttpURLConnection conn = (HttpURLConnection) (new URL("http://steamcommunity.com/id/" + communityName + "?xml=1")).openConnection();
-        
-        conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
-        if(conn.getResponseCode() >= 400) {
-            throw new IOException("Server returned response code: " + conn.getResponseCode());
-        }
-        
-        /*
-         * Parses and returns the user's 64-bit Steam ID
-         */
-        DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        Element profile = parser.parse(conn.getInputStream()).getDocumentElement();
+        if(idCache.containsKey(communityName)) {
+            return idCache.get(communityName);
+        } else {
+            /*
+             * Opens a connection to the API
+             */
+            HttpURLConnection.setFollowRedirects(false);
+            HttpURLConnection conn = (HttpURLConnection) (new URL("http://steamcommunity.com/id/" + communityName + "?xml=1")).openConnection();
 
-        return Long.parseLong(profile.getElementsByTagName("steamID64").item(0).getTextContent());
+            conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
+            if(conn.getResponseCode() >= 400) {
+                throw new IOException("Server returned response code: " + conn.getResponseCode());
+            }
+
+            /*
+             * Parses and returns the user's 64-bit Steam ID
+             */
+            DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Element profile = parser.parse(conn.getInputStream()).getDocumentElement();
+            
+            long steamID64 = Long.parseLong(profile.getElementsByTagName("steamID64").item(0).getTextContent());
+
+            synchronized(idCache) {
+                idCache.put(communityName, steamID64);
+            }
+            
+            return steamID64;
+        }
     }
 
     /**
