@@ -154,7 +154,7 @@ public class UserMode implements Runnable {
                     event.getBot().ban(event.getChannel(), event.getBot().getUser(kickUser).getHostmask());
                 }
             } else {
-                event.getBot().kick(event.getChannel(), event.getUser(), "You are not allowed to kick the bot.");
+                event.respond("Why are you trying to kick me? What did I do wrong? :'(");
             }
         }
     }
