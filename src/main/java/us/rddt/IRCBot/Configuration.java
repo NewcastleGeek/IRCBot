@@ -69,6 +69,8 @@ public class Configuration {
     private static boolean ssl_verify;
     private static String[] channels;
     
+    private static char command_prefix;
+    
     private static String channel_announcement;
     private static String[] channel_participating;
     
@@ -116,6 +118,7 @@ public class Configuration {
         use_ssl = Boolean.parseBoolean(config.getProperty("use_ssl"));
         ssl_verify = Boolean.parseBoolean(config.getProperty("ssl_verify"));
         channels = config.getProperty("channels").split(",");
+        command_prefix = config.getProperty("command_prefix").charAt(0);
         channel_announcement = config.getProperty("channel_announcement");
         channel_participating = config.getProperty("channel_participating").split(",");
         disabled_functions = new ArrayList<String>(Arrays.asList(config.getProperty("disabled_functions").split(",")));
@@ -224,6 +227,14 @@ public class Configuration {
      */
     public static String[] getChannels() {
         return channels;
+    }
+    
+    /**
+     * Returns the command prefix
+     * @return the command prefix
+     */
+    public static char getCommandPrefix() {
+        return command_prefix;
     }
     
     /**

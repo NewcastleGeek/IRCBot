@@ -82,160 +82,162 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         /*
          * Most commands below spawn threads to prevent blocking.
          */
-        if(event.getMessage().equals("!who last")) {
-            if(!Configuration.getDisabledFunctions().contains("shout")) {
-                new Thread(new Shouts(event, Shouts.ShoutEvents.LAST_COMMAND)).start();
-                return true;
-            }
-        }
-        if(event.getMessage().equals("!who list")) {
-            if(!Configuration.getDisabledFunctions().contains("shout")) {
-                new Thread(new Shouts(event, Shouts.ShoutEvents.LIST_COMMAND)).start();
-                return true;
-            }
-        }
-        if(event.getMessage().equals("!who top10")) {
-            if(!Configuration.getDisabledFunctions().contains("shout")) {
-                new Thread(new Shouts(event, Shouts.ShoutEvents.TOP10_COMMAND)).start();
-                return true;
-            }
-        }
-        if(event.getMessage().startsWith("!who delete ")) {
-            if(!Configuration.getDisabledFunctions().contains("shout")) {
-                if(isUserOperator(event.getUser(), event.getChannel())) {
-                    new Thread(new Shouts(event, Shouts.ShoutEvents.DELETE_COMMAND)).start();
+        if(event.getMessage().charAt(0) == Configuration.getCommandPrefix()) {
+            if(event.getMessage().substring(1).equals("who last")) {
+                if(!Configuration.getDisabledFunctions().contains("shout")) {
+                    new Thread(new Shouts(event, Shouts.ShoutEvents.LAST_COMMAND)).start();
+                    return true;
                 }
-                return true;
             }
-        }
-        if(event.getMessage().startsWith("!who ")) {
-            if(!Configuration.getDisabledFunctions().contains("shout")) {
-                new Thread(new Shouts(event, Shouts.ShoutEvents.LOOKUP_COMMAND)).start();
-                return true;
+            if(event.getMessage().substring(1).equals("who list")) {
+                if(!Configuration.getDisabledFunctions().contains("shout")) {
+                    new Thread(new Shouts(event, Shouts.ShoutEvents.LIST_COMMAND)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!calc ")) {
-            if(!Configuration.getDisabledFunctions().contains("calc")) {
-                new Thread(new Calculator(event)).start();
-                return true;
+            if(event.getMessage().substring(1).equals("who top10")) {
+                if(!Configuration.getDisabledFunctions().contains("shout")) {
+                    new Thread(new Shouts(event, Shouts.ShoutEvents.TOP10_COMMAND)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!convert ")) {
-            if(!Configuration.getDisabledFunctions().contains("convert")) {
-                new Thread(new Convert(event)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("who delete ")) {
+                if(!Configuration.getDisabledFunctions().contains("shout")) {
+                    if(isUserOperator(event.getUser(), event.getChannel())) {
+                        new Thread(new Shouts(event, Shouts.ShoutEvents.DELETE_COMMAND)).start();
+                    }
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!decide ")) {
-            if(!Configuration.getDisabledFunctions().contains("fortune")) {
-                new Thread(new Fortune(event)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("who ")) {
+                if(!Configuration.getDisabledFunctions().contains("shout")) {
+                    new Thread(new Shouts(event, Shouts.ShoutEvents.LOOKUP_COMMAND)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!seen ")) {
-            if(!Configuration.getDisabledFunctions().contains("seen")) {
-                new Thread(new Seen(event)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("calc ")) {
+                if(!Configuration.getDisabledFunctions().contains("calc")) {
+                    new Thread(new Calculator(event)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!ud ")) {
-            if(!Configuration.getDisabledFunctions().contains("urbandictionary")) {
-                new Thread(new Define(event)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("convert ")) {
+                if(!Configuration.getDisabledFunctions().contains("convert")) {
+                    new Thread(new Convert(event)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!g ")) {
-            if(!Configuration.getDisabledFunctions().contains("google")) {
-                new Thread(new Search(event)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("decide ")) {
+                if(!Configuration.getDisabledFunctions().contains("fortune")) {
+                    new Thread(new Fortune(event)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!steam ")) {
-            if(!Configuration.getDisabledFunctions().contains("steamquery")) {
-                new Thread(new SteamUserQuery(event)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("seen ")) {
+                if(!Configuration.getDisabledFunctions().contains("seen")) {
+                    new Thread(new Seen(event)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!status ")) {
-            if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
-                new Thread(new GameStatus(event)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("ud ")) {
+                if(!Configuration.getDisabledFunctions().contains("urbandictionary")) {
+                    new Thread(new Define(event)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!votekick ")) {
-            if(!Configuration.getDisabledFunctions().contains("votekick")) {
-                new Thread(new Votekick(event)).start();
+            if(event.getMessage().substring(1).startsWith("g ")) {
+                if(!Configuration.getDisabledFunctions().contains("google")) {
+                    new Thread(new Search(event)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!appendtopic ")) {
-            if(isUserOperator(event.getUser(), event.getChannel())) {
-                new Thread(new Topic(event, TopicUpdates.ADD_TO_TOPIC)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("steam ")) {
+                if(!Configuration.getDisabledFunctions().contains("steamquery")) {
+                    new Thread(new SteamUserQuery(event)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().startsWith("!removetopic ")) {
-            if(isUserOperator(event.getUser(), event.getChannel())) {
-                new Thread(new Topic(event, TopicUpdates.REMOVE_FROM_TOPIC)).start();
-                return true;
+            if(event.getMessage().substring(1).startsWith("status ")) {
+                if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
+                    new Thread(new GameStatus(event)).start();
+                    return true;
+                }
             }
-        }
-        if(event.getMessage().equals("!leave")) {
-            if(isUserAdmin(event.getUser())) {
-                event.getBot().partChannel(event.getChannel());
-                return true;
+            if(event.getMessage().substring(1).startsWith("votekick ")) {
+                if(!Configuration.getDisabledFunctions().contains("votekick")) {
+                    new Thread(new Votekick(event)).start();
+                }
             }
-        }
+            if(event.getMessage().substring(1).startsWith("appendtopic ")) {
+                if(isUserOperator(event.getUser(), event.getChannel())) {
+                    new Thread(new Topic(event, TopicUpdates.ADD_TO_TOPIC)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).startsWith("removetopic ")) {
+                if(isUserOperator(event.getUser(), event.getChannel())) {
+                    new Thread(new Topic(event, TopicUpdates.REMOVE_FROM_TOPIC)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).equals("leave")) {
+                if(isUserAdmin(event.getUser())) {
+                    event.getBot().partChannel(event.getChannel());
+                    return true;
+                }
+            }
 
-        /*
-         * User mode change events
-         */
-        if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
-            new Thread(new UserMode(event, UserModes.KICK)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!kickban ") || event.getMessage().substring(0, 4).equals(".kb ")) {
-            new Thread(new UserMode(event, UserModes.BAN)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!owner ")) {
-            new Thread(new UserMode(event, UserModes.OWNER)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!deowner ")) {
-            new Thread(new UserMode(event, UserModes.DEOWNER)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!protect ")) {
-            new Thread(new UserMode(event, UserModes.SUPEROP)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!deprotect ")) {
-            new Thread(new UserMode(event, UserModes.DESUPEROP)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!op ")) {
-            new Thread(new UserMode(event, UserModes.OP)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!deop ")) {
-            new Thread(new UserMode(event, UserModes.DEOP)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!halfop ")) {
-            new Thread(new UserMode(event, UserModes.HALFOP)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!dehalfop ")) {
-            new Thread(new UserMode(event, UserModes.DEHALFOP)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!voice ")) {
-            new Thread(new UserMode(event, UserModes.VOICE)).start();
-            return true;
-        }
-        if(event.getMessage().startsWith("!devoice ")) {
-            new Thread(new UserMode(event, UserModes.DEVOICE)).start();
-            return true;
+            /*
+             * User mode change events
+             */
+            if(event.getMessage().substring(1).startsWith("kick ") || event.getMessage().substring(1).startsWith("k ")) {
+                new Thread(new UserMode(event, UserModes.KICK)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("kickban ") || event.getMessage().substring(1).startsWith("kb ")) {
+                new Thread(new UserMode(event, UserModes.BAN)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("owner ")) {
+                new Thread(new UserMode(event, UserModes.OWNER)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("deowner ")) {
+                new Thread(new UserMode(event, UserModes.DEOWNER)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("protect ")) {
+                new Thread(new UserMode(event, UserModes.SUPEROP)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("deprotect ")) {
+                new Thread(new UserMode(event, UserModes.DESUPEROP)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("op ")) {
+                new Thread(new UserMode(event, UserModes.OP)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("deop ")) {
+                new Thread(new UserMode(event, UserModes.DEOP)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("halfop ")) {
+                new Thread(new UserMode(event, UserModes.HALFOP)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("dehalfop ")) {
+                new Thread(new UserMode(event, UserModes.DEHALFOP)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("voice ")) {
+                new Thread(new UserMode(event, UserModes.VOICE)).start();
+                return true;
+            }
+            if(event.getMessage().substring(1).startsWith("devoice ")) {
+                new Thread(new UserMode(event, UserModes.DEVOICE)).start();
+                return true;
+            }
         }
         return false;
     }
@@ -270,7 +272,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         Configuration.getLogger().write(Level.INFO, "Joining channel " + event.getChannel());
         event.getBot().joinChannel(event.getChannel());
     }
-    
+
     /**
      * Handler when someone has joined the channel
      * (non-Javadoc)
@@ -405,7 +407,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(user.getNick().equals(Configuration.getAdminNick()) && user.getHostmask().equals(Configuration.getAdminHostmask())) return true;
         else return false;
     }
-    
+
     /**
      * Checks to see if a user is a channel operator or higher
      * @param user the user to check
@@ -427,7 +429,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             bot.sendMessage(c, message);
         }
     }
-    
+
     /**
      * Sends a targeted message or notice to a specific channel
      * @param bot the IRC bot
