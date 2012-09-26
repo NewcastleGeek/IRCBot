@@ -95,6 +95,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     return true;
                 }
             }
+            if(event.getMessage().substring(1).startsWith("who user")) {
+                if(!Configuration.getDisabledFunctions().contains("shout")) {
+                    new Thread(new Shouts(event, Shouts.ShoutEvents.LIST_USER_COMMAND)).start();
+                    return true;
+                }
+            }
             if(event.getMessage().substring(1).equals("who top10")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     new Thread(new Shouts(event, Shouts.ShoutEvents.TOP10_COMMAND)).start();

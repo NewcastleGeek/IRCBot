@@ -31,9 +31,11 @@ package us.rddt.IRCBot.Handlers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
@@ -111,12 +113,13 @@ public class Shouts implements Runnable {
     private ShoutEvents eventType;
     private int quoteNumber;
     private String randomQuote = null;
-    
+
     public enum ShoutEvents {
         RANDOM_SHOUT,
         LOOKUP_COMMAND,
         LAST_COMMAND,
         LIST_COMMAND,
+        LIST_USER_COMMAND,
         TOP10_COMMAND,
         DELETE_COMMAND,
     }
@@ -143,7 +146,7 @@ public class Shouts implements Runnable {
         statement.setString(4, event.getMessage());
         statement.executeUpdate();
     }
-    
+
     /**
      * Deletes a quote from the database
      * @param quote the quote text to delete
@@ -181,7 +184,7 @@ public class Shouts implements Runnable {
     private Shout getShoutMap() {
         return shoutMap.get(event.getChannel().getName());
     }
-    
+
     /**
      * Returns the last shout if possible
      * @return the last shout (if possible)
@@ -219,7 +222,7 @@ public class Shouts implements Runnable {
             return "Quote not found.";
         }
     }
-    
+
     /**
      * Returns the statistics of the quote database
      * @return the formatted statistics of the quote database
@@ -284,7 +287,7 @@ public class Shouts implements Runnable {
             return null;
         }
     }
-    
+
     /**
      * Returns the top 10 shouters on the channel
      * @return the formatted top 10 shouters on the channel
@@ -306,6 +309,31 @@ public class Shouts implements Runnable {
             tempCount++;
         }
         return constructedString.toString().substring(0, constructedString.length() - 2);
+    }
+
+    /**
+     * Returns the number of quotes from a list of users
+     * @param nicks the nicknames of the users
+     * @return a map containing the user's nick and the number of quotes
+     * @throws SQLException if the SQL query does not execute correctly
+     */
+    private Map<String, Integer> getUserStats(List<String> nicks) throws SQLException {
+        // Create a map to hold each user's stats
+        Map<String, Integer> userStats = new HashMap<String, Integer>();
+        // For each user, query the database and insert the result into the map
+        for(String nick : nicks) {
+            PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? AND Nick = ?");
+            statement.setString(1, event.getChannel().getName());
+            statement.setString(2, nick);
+            ResultSet resultSet = statement.executeQuery();
+            if(resultSet.next()) {
+                userStats.put(resultSet.getString("Nick"), resultSet.getInt("COUNT(Nick)"));
+            } else {
+                userStats.put(nick, 0);
+            }
+        }
+        // Return the map
+        return userStats;
     }
 
     /**
@@ -358,6 +386,27 @@ public class Shouts implements Runnable {
             } else if(eventType.equals(ShoutEvents.LIST_COMMAND)) {
                 // We're dealing with a !who list command - respond to the user with the quote database's statistics
                 event.respond(getQuoteStats());
+            } else if(eventType.equals(ShoutEvents.LIST_USER_COMMAND)) {
+                // We're dealing with a !who user command - respond to the user with the user(s) statistics
+                StringBuilder builder = new StringBuilder();
+                // Split the parameters into a list minus the commands passed to the bot
+                List<String> params = new ArrayList<String>();
+                String[] tempSplit = event.getMessage().split(" ");
+                for(int i = 2; i < tempSplit.length && i != 5; i++) {
+                    params.add(tempSplit[i]);
+                }
+                // Retrieve the stats for the users
+                Map<String, Integer> result = getUserStats(params);
+                // Construct a user-friendly string with the data
+                String prefix = "";
+                for(Map.Entry<String, Integer> entry : result.entrySet()) {
+                    builder.append(prefix);
+                    prefix = ", ";
+                    builder.append(entry.getKey() + " has " + entry.getValue() + " shouts");
+                }
+                builder.append(".");
+                // Return the user-friendly string to the user
+                event.respond(builder.toString());
             } else if(eventType.equals(ShoutEvents.LAST_COMMAND)) {
                 // We're dealing with a !who last command - respond to the user with the last shout
                 event.respond(getLastShout());
