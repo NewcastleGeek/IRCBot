@@ -33,6 +33,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.events.MessageEvent;
 
+import us.rddt.IRCBot.UserUtils;
 import us.rddt.IRCBot.Enums.UserModes;
 
 /**
@@ -126,15 +127,7 @@ public class UserMode implements Runnable {
      * @param toChange the user to receive the mode change
      */
     private boolean isAllowable(Channel channel, User op, User toChange) {
-        // If the op is the channel owner, allow it
-        if(op.getChannelsOwnerIn().contains(channel)) return true;
-        // If the op is a superop AND the offending user is NOT another superop or owner
-        else if(op.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsOwnerIn().contains(channel)) return true;
-        // If the op is an op AND the offending user is NOT an op OR superop OR owner
-        else if(op.getChannelsOpIn().contains(channel) && !toChange.getChannelsOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsOwnerIn().contains(channel)) return true;
-        // If the op is a halfop AND the offending user is NOT a halfop OR op OR superop OR owner
-        else if(op.getChannelsHalfOpIn().contains(channel) && !toChange.getChannelsHalfOpIn().contains(channel) && !toChange.getChannelsOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsOwnerIn().contains(channel)) return true;
-        // The operation is illegal!
+        if(UserUtils.getLevel(op, channel) > UserUtils.getLevel(toChange, channel)) return true;
         else return false;
     }
 
