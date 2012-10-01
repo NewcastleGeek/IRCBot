@@ -79,14 +79,14 @@ public class URLGrabber implements Runnable {
     // Regex pattern to match imgur links
     private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
     // Regex pattern to match Reddit links
-    private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/.+\\/.+\\/");
+    private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/.+\\/.+(\\/)?(\\s|\\n)");
     // Regex pattern to match Reddit users
     private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
     // Regex pattern to match Twitter tweets
     private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/(www\\.)?twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
     // Regex pattern to match YouTube videos
     private static final Pattern YOUTUBE_VIDEO = Pattern.compile("http:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
- // Regex pattern to match Vimeo videos
+    // Regex pattern to match Vimeo videos
     private static final Pattern VIMEO_VIDEO = Pattern.compile("http:\\/\\/(www.)?vimeo\\.com\\/[0-9]+");
 
     /**
