@@ -85,7 +85,7 @@ public class URLGrabber implements Runnable {
     // Regex pattern to match Twitter tweets
     private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/(www\\.)?twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
     // Regex pattern to match YouTube videos
-    private static final Pattern YOUTUBE_VIDEO = Pattern.compile("http:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
+    private static final Pattern YOUTUBE_VIDEO = Pattern.compile("https?:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
     // Regex pattern to match Vimeo videos
     private static final Pattern VIMEO_VIDEO = Pattern.compile("http:\\/\\/(www.)?vimeo\\.com\\/[0-9]+");
 
