@@ -62,6 +62,19 @@ public class IRCUtils {
     }
     
     /**
+     * Returns a more user-friendly string containing the cipher suite of a HTTPS connection.
+     * Java tends to return strings such as TLS_ECDHE_RSA_WITH_RC4_128_SHA, when we only really need to
+     * show the user it's a 128-bit secured TLS connection.
+     * @see java.net.HttpsURLConnection
+     * @param cipherSuite the output of HttpsURLConnections' getCipherSuite method
+     * @return the formatted cipher suite to display to the user
+     */
+    public static String getReadableCipherSuite(String cipherSuite) {
+        String[] split = cipherSuite.split("_");
+        return split[0] + " " + split[split.length - 2] + "-bit";
+    }
+    
+    /**
      * Returns the stack trace of a throwable object as a string
      * @param throwable the throwable object to return the stack trace for
      * @return the stack trace as a string

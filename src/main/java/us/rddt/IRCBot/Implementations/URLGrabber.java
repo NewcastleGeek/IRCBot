@@ -281,7 +281,7 @@ public class URLGrabber implements Runnable {
         }
         // Check whether the connection is over HTTPS
         if (conn instanceof HttpsURLConnection) {
-            built.append(Colors.BOLD + Colors.GREEN + "[SSL/TLS]" + Colors.NORMAL + " ");
+            built.append(Colors.BOLD + Colors.GREEN + "[" + IRCUtils.getReadableCipherSuite(((HttpsURLConnection) conn).getCipherSuite()) + "]" + Colors.NORMAL + " ");
         }
         
         // If the document isn't HTML, return the Content-Type and Content-Length instead
