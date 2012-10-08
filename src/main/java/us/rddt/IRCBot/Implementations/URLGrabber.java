@@ -272,21 +272,21 @@ public class URLGrabber implements Runnable {
         ContentType contentType = getContentTypeHeader(conn);
         
         // Prefix for marking SSL/TLS and IPv6 connections
-        StringBuilder built = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         
         // Check whether the connection is IPv6 or IPv4
         String ip = InetAddress.getByName(url.getHost()).getHostAddress();
         if(ip.contains(":") && !ip.contains(".")) {
-            built.append(Colors.BOLD + Colors.GREEN + "[IPv6]" + Colors.NORMAL + " ");
+            builder.append(Colors.BOLD + Colors.GREEN + "[IPv6]" + Colors.NORMAL + " ");
         }
         // Check whether the connection is over HTTPS
         if (conn instanceof HttpsURLConnection) {
-            built.append(Colors.BOLD + Colors.GREEN + "[" + IRCUtils.getReadableCipherSuite(((HttpsURLConnection) conn).getCipherSuite()) + "]" + Colors.NORMAL + " ");
+            builder.append(Colors.BOLD + Colors.GREEN + "[" + IRCUtils.getReadableCipherSuite(((HttpsURLConnection) conn).getCipherSuite()) + "]" + Colors.NORMAL + " ");
         }
         
         // If the document isn't HTML, return the Content-Type and Content-Length instead
         if(!contentType.contentType.equals("text/html")) {
-            return built.append("Type: " + contentType.contentType + ", length: " + humanReadableByteCount(getContentLengthHeader(conn), true)).toString();
+            return builder.append("Type: " + contentType.contentType + ", length: " + humanReadableByteCount(getContentLengthHeader(conn), true)).toString();
         }
         else {
             // Get the character set or use the default accordingly
@@ -318,7 +318,7 @@ public class URLGrabber implements Runnable {
             {
                 return "Title not found or not within first 8192 bytes of page, aborting.";
             }
-            return built.append(Colors.BOLD + IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim())).toString();
+            return builder.append(Colors.BOLD + IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim())).toString();
         }
     }
 
