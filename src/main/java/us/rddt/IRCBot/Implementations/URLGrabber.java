@@ -318,7 +318,9 @@ public class URLGrabber implements Runnable {
             {
                 return "Title not found or not within first 8192 bytes of page, aborting.";
             }
-            return builder.append(Colors.BOLD + IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim())).toString();
+            String pageTitle = IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim());
+            if(pageTitle.length() > 180) return "Title is longer than 180 characters, aborting."; 
+            return builder.append(Colors.BOLD + pageTitle).toString();
         }
     }
 
