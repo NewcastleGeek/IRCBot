@@ -46,6 +46,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -318,9 +319,8 @@ public class URLGrabber implements Runnable {
             {
                 return "Title not found or not within first 8192 bytes of page, aborting.";
             }
-            String pageTitle = IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim());
-            if(pageTitle.length() > 180) return "Title is longer than 180 characters, aborting."; 
-            return builder.append(Colors.BOLD + pageTitle).toString();
+            // Abbreviate with ellipsis if titles are greater than 180 characters to avoid abuse/spam
+            return builder.append(Colors.BOLD + StringUtils.abbreviate(IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim()), 180)).toString();
         }
     }
 
