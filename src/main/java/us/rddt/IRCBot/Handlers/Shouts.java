@@ -143,7 +143,7 @@ public class Shouts implements Runnable {
         statement.setString(1, event.getUser().getNick());
         statement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
         statement.setString(3, event.getChannel().getName());
-        statement.setString(4, event.getMessage());
+        statement.setString(4, event.getMessage().trim());
         statement.executeUpdate();
     }
 
@@ -416,7 +416,7 @@ public class Shouts implements Runnable {
             } else if(eventType.equals(ShoutEvents.DELETE_COMMAND)) {
                 // We're dealing with a !who delete command - delete the provided quote from the database
                 // Operator status has already been confirmed at this point
-                if(deleteQuote(event.getMessage().split("!who delete ")[1]) > 0) {
+                if(deleteQuote(event.getMessage().split("!who delete ")[1].trim()) > 0) {
                     event.respond("Quote has been removed from the database.");
                 } else {
                     event.respond("Could not delete quote - quote not found.");
