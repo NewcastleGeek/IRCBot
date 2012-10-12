@@ -144,6 +144,10 @@ public class Configuration {
         log_output = config.getProperty("log_output");
         user_agent = config.getProperty("user_agent");
         steam_api_key = config.getProperty("steam_api_key");
+        twitter_access_token = config.getProperty("twitter_access_token");
+        twitter_access_secret = config.getProperty("twitter_access_secret");
+        twitter_consumer_key = config.getProperty("twitter_consumer_key");
+        twitter_consumer_secret = config.getProperty("twitter_consumer_secret");
     }
 
     /**
