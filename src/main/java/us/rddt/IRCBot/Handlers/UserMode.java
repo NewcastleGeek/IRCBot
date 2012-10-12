@@ -161,7 +161,7 @@ public class UserMode implements Runnable {
                 if(isBan && !event.getUser().getChannelsHalfOpIn().contains(event.getChannel())) {
                     event.getBot().ban(event.getChannel(), event.getBot().getUser(kickUser).getHostmask());
                 }
-                if(Configuration.getDisabledFunctions().contains("tweetevent")) {
+                if(!Configuration.getDisabledFunctions().contains("tweetevent")) {
                     try {
                         tweetKickBan(event.getUser().getNick(), kickUser, event.getChannel().getName(), kickReason, isBan);
                     } catch (TwitterException te) {
