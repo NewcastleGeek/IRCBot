@@ -28,11 +28,19 @@
 
 package us.rddt.IRCBot.Handlers;
 
+import java.util.logging.Level;
+
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.events.MessageEvent;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.UserUtils;
 import us.rddt.IRCBot.Enums.UserModes;
 
@@ -153,10 +161,33 @@ public class UserMode implements Runnable {
                 if(isBan && !event.getUser().getChannelsHalfOpIn().contains(event.getChannel())) {
                     event.getBot().ban(event.getChannel(), event.getBot().getUser(kickUser).getHostmask());
                 }
+                if(Configuration.getDisabledFunctions().contains("tweetevent")) {
+                    try {
+                        tweetKickBan(event.getUser().getNick(), kickUser, event.getChannel().getName(), kickReason, isBan);
+                    } catch (TwitterException te) {
+                        Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(te));
+                    }
+                }
             } else {
                 event.respond("Why are you trying to kick me? What did I do wrong? :'(");
             }
         }
+    }
+    
+    /**
+     * Tweets kicks and bans to a Twitter account
+     * @param op the operator performing the kick/ban
+     * @param victim the victim
+     * @param channel the channel name
+     * @param reason the reason for the kick/ban
+     * @param isBan true if the user is being banned
+     * @throws TwitterException if the tweet cannot be posted
+     */
+    private void tweetKickBan(String op, String victim, String channel, String reason, boolean isBan) throws TwitterException {
+        Twitter twitter = new TwitterFactory().getInstance();
+        twitter.setOAuthConsumer(Configuration.getTwitterConsumerKey(), Configuration.getTwitterConsumerSecret());
+        twitter.setOAuthAccessToken(new AccessToken(Configuration.getTwitterAccessToken(), Configuration.getTwitterAccessSecret()));
+        twitter.updateStatus(op + " has " + ((isBan) ? "banned" : "kicked") + " " + victim + " from " + channel + "! " + ((!reason.isEmpty()) ? "(" + reason + ")" : ""));
     }
 
     /**
