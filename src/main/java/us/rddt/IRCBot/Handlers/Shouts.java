@@ -369,7 +369,7 @@ public class Shouts implements Runnable {
     /**
      * Tweets a shout to a Twitter account
      * @param quote the quote to tweet
-     * @throws TwitterException 
+     * @throws TwitterException if the tweet cannot be posted
      */
     private void tweetShout(String quote) throws TwitterException {
         Twitter twitter = new TwitterFactory().getInstance();
