@@ -101,6 +101,11 @@ public class Configuration {
     private static String user_agent;
     
     private static String steam_api_key;
+    
+    private static String twitter_access_token;
+    private static String twitter_access_secret;
+    private static String twitter_consumer_key;
+    private static String twitter_consumer_secret;
 
     /**
      * Loads the configuration provided via a properties file
@@ -387,6 +392,38 @@ public class Configuration {
         return steam_api_key;
     }
     
+    /**
+     * Returns the access token for Twitter
+     * @return the access token for Twitter
+     */
+    public static String getTwitterAccessToken() {
+        return twitter_access_token;
+    }
+
+    /**
+     * Returns the access secret for Twitter
+     * @return the access secret for Twitter
+     */
+    public static String getTwitterAccessSecret() {
+        return twitter_access_secret;
+    }
+
+    /**
+     * Returns the consumer key for Twitter
+     * @return the consumer key for Twitter
+     */
+    public static String getTwitterConsumerKey() {
+        return twitter_consumer_key;
+    }
+
+    /**
+     * Returns the consumer secret for Twitter
+     * @return the consumer secret for Twitter
+     */
+    public static String getTwitterConsumerSecret() {
+        return twitter_consumer_secret;
+    }
+
     /**
      * Returns if the connection should be secured through SSL
      * @return true if SSL should be used, false for unsecured connections

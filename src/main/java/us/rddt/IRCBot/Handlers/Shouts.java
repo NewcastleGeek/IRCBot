@@ -43,6 +43,10 @@ import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
@@ -278,10 +282,19 @@ public class Shouts implements Runnable {
         // Execute our query against the database
         ResultSet resultSet = statement.executeQuery();
         if(resultSet.next()) {
+            Shout shout = new Shout(resultSet.getString("Quote"), resultSet.getString("Nick"), IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false, true));
             // Save the last quote to prevent an extra DB hit on !who last
-            shoutMap.put(event.getChannel().getName(), new Shout(resultSet.getString("Quote"), resultSet.getString("Nick"), IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false, true)));
+            shoutMap.put(event.getChannel().getName(), shout);
+            // Tweet the shout if configured to do so, and the shout will fit inside a tweet
+            if(!Configuration.getDisabledFunctions().contains("tweetshout") && shout.getQuote().length() <= 130) {
+                try {
+                    tweetShout(shout.getQuote());
+                } catch (TwitterException te) {
+                    Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(te));
+                }
+            }
             // Return the random quote
-            return resultSet.getString("Quote");
+            return shout.getQuote();
         } else {
             // The database query returned nothing, so return null
             return null;
@@ -351,6 +364,18 @@ public class Shouts implements Runnable {
         } catch (NumberFormatException ex) {
             return false;
         }
+    }
+    
+    /**
+     * Tweets a shout to a Twitter account
+     * @param quote the quote to tweet
+     * @throws TwitterException 
+     */
+    private void tweetShout(String quote) throws TwitterException {
+        Twitter twitter = new TwitterFactory().getInstance();
+        twitter.setOAuthConsumer(Configuration.getTwitterConsumerKey(), Configuration.getTwitterConsumerSecret());
+        twitter.setOAuthAccessToken(new AccessToken(Configuration.getTwitterAccessToken(), Configuration.getTwitterAccessSecret()));
+        twitter.updateStatus(quote + " #shouting");
     }
 
     /**
