@@ -286,7 +286,7 @@ public class Shouts implements Runnable {
             // Save the last quote to prevent an extra DB hit on !who last
             shoutMap.put(event.getChannel().getName(), shout);
             // Tweet the shout if configured to do so, and the shout will fit inside a tweet
-            if(!Configuration.getDisabledFunctions().contains("tweetshout") && shout.getQuote().length() <= 130) {
+            if(!Configuration.getDisabledFunctions().contains("tweetshout") && shout.getQuote().length() <= 140) {
                 try {
                     tweetShout(shout.getQuote());
                 } catch (TwitterException te) {
@@ -375,7 +375,7 @@ public class Shouts implements Runnable {
         Twitter twitter = new TwitterFactory().getInstance();
         twitter.setOAuthConsumer(Configuration.getTwitterConsumerKey(), Configuration.getTwitterConsumerSecret());
         twitter.setOAuthAccessToken(new AccessToken(Configuration.getTwitterAccessToken(), Configuration.getTwitterAccessSecret()));
-        twitter.updateStatus(quote + " #shouting");
+        twitter.updateStatus(quote);
     }
 
     /**
