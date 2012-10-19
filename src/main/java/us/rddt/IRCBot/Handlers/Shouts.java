@@ -43,6 +43,10 @@ import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
@@ -282,6 +286,10 @@ public class Shouts implements Runnable {
             Shout shout = new Shout(resultSet.getString("Quote"), resultSet.getString("Nick"), IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false, true));
             // Save the last quote to prevent an extra DB hit on !who last
             shoutMap.put(event.getChannel().getName(), shout);
+            // Tweet the quote if enabled
+            if(!Configuration.getDisabledFunctions().contains("tweetshouts")) {
+                new Thread(new TweetShout(shout)).start();
+            }
             // Return the random quote
             return shout.getQuote();
         } else {
@@ -433,4 +441,39 @@ public class Shouts implements Runnable {
             return;
         }
     }
+}
+
+/**
+ * Class to execute in a separate thread to update Twitter with shouts.
+ * @author Ryan Morrison
+ */
+class TweetShout implements Runnable {
+    private Shout toTweet;
+    
+    /**
+     * Class constructor.
+     * @param toTweet the shout object to tweet
+     */
+    public TweetShout(Shout toTweet) {
+        this.toTweet = toTweet;
+    }
+    
+    /**
+     * Method that executes upon thread start
+     * (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+        if((toTweet.getSubmitter().length() + toTweet.getQuote().length() + 2) <= 140) {
+            try {
+                Twitter twitter = new TwitterFactory().getInstance();  
+                twitter.setOAuthConsumer(Configuration.getTwitterConsumerKey(), Configuration.getTwitterConsumerSecret());
+                twitter.setOAuthAccessToken(new AccessToken(Configuration.getTwitterAccessToken(), Configuration.getTwitterAccessSecret()));
+                
+                twitter.updateStatus(toTweet.getSubmitter() + ": " + toTweet.getQuote());
+            } catch (TwitterException te) {
+                Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(te));
+            }
+        }
+    } 
 }
