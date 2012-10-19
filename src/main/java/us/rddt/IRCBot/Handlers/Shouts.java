@@ -46,6 +46,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.Statistics.Statistics;
 
 /**
  * Shouts is an interesting way to discourage all caps spam in an IRC channel, or
@@ -370,6 +371,8 @@ public class Shouts implements Runnable {
                 // If the quote does not exist in the database, add it!
                 if((randomQuote = getRandomQuote()) != null) {
                     event.getBot().sendMessage(event.getChannel(), (Colors.removeFormattingAndColors(randomQuote)));
+                    // Update statistics
+                    Statistics.getChannelStatistics(event.getChannel()).addShout(event.getUser().getNick());
                 }
                 if(!doesQuoteExist()) addNewQuote();
             } else if(eventType.equals(ShoutEvents.LOOKUP_COMMAND)) {

@@ -35,6 +35,8 @@ import org.pircbotx.UtilSSLSocketFactory;
 import org.pircbotx.exception.NickAlreadyInUseException;
 import org.pircbotx.hooks.ListenerAdapter;
 
+import us.rddt.IRCBot.Statistics.StatisticsUpdater;
+
 /**
  * The entry point for IRCBot. IRCBot is a custom IRC bot written in Java primarily
  * to support the RDDT IRC Network.
@@ -74,6 +76,10 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
         connect(bot, args);
         // Create the scheduler for watching subreddits
         Configuration.startScheduler(bot);
+        // Create the scheduler for statistics updating
+        if(!Configuration.getDisabledFunctions().contains("tweetstatistics")) {
+            StatisticsUpdater.schedule();
+        }
         // Add a shutdown handler to attempt to properly disconnect from the server upon shutdown
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             public void run() {

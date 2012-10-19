@@ -46,6 +46,7 @@ import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
+import us.rddt.IRCBot.Enums.StatisticsModes;
 import us.rddt.IRCBot.Enums.TopicUpdates;
 import us.rddt.IRCBot.Enums.UserModes;
 import us.rddt.IRCBot.Handlers.Calculator;
@@ -56,11 +57,14 @@ import us.rddt.IRCBot.Handlers.GameStatus;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
+import us.rddt.IRCBot.Handlers.StatisticsHandler;
 import us.rddt.IRCBot.Handlers.SteamUserQuery;
 import us.rddt.IRCBot.Handlers.Topic;
 import us.rddt.IRCBot.Handlers.UserMode;
 import us.rddt.IRCBot.Handlers.Votekick;
 import us.rddt.IRCBot.Implementations.URLGrabber;
+import us.rddt.IRCBot.Statistics.Statistics;
+import us.rddt.IRCBot.Statistics.StatisticsTask;
 
 /**
  * Handles events as they are registered by the bot. Each command's action is
@@ -160,6 +164,24 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             if(event.getMessage().substring(1).startsWith("steam ")) {
                 if(!Configuration.getDisabledFunctions().contains("steamquery")) {
                     new Thread(new SteamUserQuery(event)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).equals("statistics")) {
+                if(isUserAdmin(event.getUser())) {
+                    new Thread(new StatisticsTask(true)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).equals("disablestatistics")) {
+                if(isUserOperator(event.getUser(), event.getChannel())) {
+                    new Thread(new StatisticsHandler(event, StatisticsModes.ADD)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).equals("enablestatistics")) {
+                if(isUserOperator(event.getUser(), event.getChannel())) {
+                    new Thread(new StatisticsHandler(event, StatisticsModes.REMOVE)).start();
                     return true;
                 }
             }
@@ -326,8 +348,13 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             while(urlMatcher.find()) {
                 if(++urlCount > 2) break;
                 new Thread(new URLGrabber(event, new URL(urlMatcher.group()))).start();
+                // Update statistics
+                Statistics.getChannelStatistics(event.getChannel()).addUrl(event.getUser().getNick());
             }
+            if(urlCount > 0) return;
         }
+        // Update statistics
+        Statistics.getChannelStatistics(event.getChannel()).addLine(event.getUser().getNick());
     }
 
     /**
