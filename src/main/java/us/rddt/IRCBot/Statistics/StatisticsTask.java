@@ -83,6 +83,11 @@ public class StatisticsTask extends TimerTask {
                     Entry<String, Integer> mostLines = cs.getValue().getMostLines();
                     Entry<String, Integer> mostShouts = cs.getValue().getMostShouts();
                     Entry<String, Integer> mostURLs = cs.getValue().getMostUrls();
+                    
+                    // Post the update to Twitter!
+                    // Sleep for 2 seconds after each tweet to avoid flooding Twitter and breaking API access limits.
+                    twitter.updateStatus("Today in " + cs.getKey().getName() + ": " + cs.getValue().getTotalLines() + " total lines spoken, " + cs.getValue().getTotalShouts() + " total shouts and " + cs.getValue().getTotalUrls() + " total linked URLs.");
+                    Thread.sleep(2000);
 
                     /*
                      * Some of these values can be null if nobody spoke, shout or entered a URL into the channel.
@@ -96,16 +101,16 @@ public class StatisticsTask extends TimerTask {
                     if(mostShouts != null) {
                         tweetBuilder.append(mostShouts.getKey() + " loved their CAPS LOCK key so much they used it " + mostShouts.getValue() + " times. ");
                     }
-                    if(mostURLs != null) {
-                        tweetBuilder.append(mostURLs.getKey() + " went link crazy, pasting " + mostURLs.getValue() + " links into the channel. ");
-                    }
 
-                    // Post the update to Twitter!
-                    // Sleep for 2 seconds after each tweet to avoid flooding Twitter and breaking API access limits.
-                    twitter.updateStatus("Today in " + cs.getKey().getName() + ": " + cs.getValue().getTotalLines() + " total lines spoken, " + cs.getValue().getTotalShouts() + " total shouts and " + cs.getValue().getTotalUrls() + " total linked URLs.");
-                    Thread.sleep(2000);
                     twitter.updateStatus(tweetBuilder.toString());
                     Thread.sleep(2000);
+                    
+                    // Most URLs has to go in its own tweet, since it causes the string to exceed Twitter's 140 character limit.
+                    
+                    if(mostURLs != null) {
+                        twitter.updateStatus(mostURLs.getKey() + " went link crazy, pasting " + mostURLs.getValue() + " links into the channel. ");
+                        Thread.sleep(2000);
+                    }
                 }
             }
         } catch (TwitterException te) {
