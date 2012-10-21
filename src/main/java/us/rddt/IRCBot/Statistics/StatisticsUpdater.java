@@ -54,7 +54,7 @@ public class StatisticsUpdater {
         calendar.set(Calendar.SECOND, 0);
         
         timer = new Timer();
-        timer.schedule(new StatisticsTask(), calendar.getTime());
+        timer.schedule(new StatisticsTask(), calendar.getTime(), 1000*60*60*24);
         
         Configuration.getLogger().write(Level.INFO, "Created timer to refresh statistics.");
     }
