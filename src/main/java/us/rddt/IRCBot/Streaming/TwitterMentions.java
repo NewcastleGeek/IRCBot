@@ -127,9 +127,11 @@ class TwitterListener implements Runnable {
                         // If the current mention equals our last known mention, then we've displayed
                         // everything new so just return.
                         if(s.equals(TwitterMentions.getLastMention())) break;
-                        // Print the mention to each channel the bot is currently a part of
-                        for(Channel c : bot.getChannels()) {
-                            bot.sendMessage(c, "[Twitter Mention] " + Colors.BOLD + "@" + s.getUser().getScreenName() + Colors.NORMAL + ": " + s.getText());
+                        
+                        // Ensure that we are part of the channel to broadcast to
+                        Channel channelToBroadcast = bot.getChannel(Configuration.getMainChannel());
+                        if(bot.getChannels().contains(channelToBroadcast)) {
+                            bot.sendMessage(channelToBroadcast, "[Twitter Mention] " + Colors.BOLD + "@" + s.getUser().getScreenName() + Colors.NORMAL + ": " + s.getText());
                         }
                     }
                     // Save the new most recent mention as the last one

@@ -75,6 +75,8 @@ public class Configuration {
     private static String[] channel_participating;
     
     private static List<String> disabled_functions;
+    
+    private static String main_channel;
 
     private static String[] watchSubreddits;
     
@@ -127,6 +129,7 @@ public class Configuration {
         channel_announcement = config.getProperty("channel_announcement");
         channel_participating = config.getProperty("channel_participating").split(",");
         disabled_functions = new ArrayList<String>(Arrays.asList(config.getProperty("disabled_functions").split(",")));
+        main_channel = config.getProperty("main_channel");
         watchSubreddits = config.getProperty("watch_subreddits").split(",");
         votekickDuration = Integer.parseInt(config.getProperty("votekick_duration"));
         votekickPassPercent = Integer.parseInt(config.getProperty("votekick_pass_percent"));
@@ -268,6 +271,14 @@ public class Configuration {
      */
     public static List<String> getDisabledFunctions() {
         return disabled_functions;
+    }
+    
+    /**
+     * Return the main channel
+     * @return the main channel
+     */
+    public static String getMainChannel() {
+        return main_channel;
     }
     
     /**
