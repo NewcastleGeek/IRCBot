@@ -46,6 +46,7 @@ import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
+import us.rddt.IRCBot.Enums.GameStatusModes;
 import us.rddt.IRCBot.Enums.StatisticsModes;
 import us.rddt.IRCBot.Enums.TopicUpdates;
 import us.rddt.IRCBot.Enums.UserModes;
@@ -185,9 +186,45 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("status ")) {
+            if(event.getMessage().substring(1).startsWith("status set ")) {
                 if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
-                    new Thread(new GameStatus(event)).start();
+                    new Thread(new GameStatus(event, GameStatusModes.SET)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).equals("status reset")) {
+                if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
+                    new Thread(new GameStatus(event, GameStatusModes.RESET)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).equals("status all")) {
+                if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
+                    new Thread(new GameStatus(event, GameStatusModes.ALL)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).startsWith("status user ")) {
+                if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
+                    new Thread(new GameStatus(event, GameStatusModes.USER)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).startsWith("status game ")) {
+                if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
+                    new Thread(new GameStatus(event, GameStatusModes.GAME)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).startsWith("status add ")) {
+                if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
+                    new Thread(new GameStatus(event, GameStatusModes.ADD)).start();
+                    return true;
+                }
+            }
+            if(event.getMessage().substring(1).startsWith("status delete ")) {
+                if(!Configuration.getDisabledFunctions().contains("gamestatus") && isUserAdmin(event.getUser())) {
+                    new Thread(new GameStatus(event, GameStatusModes.DELETE)).start();
                     return true;
                 }
             }

@@ -28,9 +28,6 @@
 
 package us.rddt.IRCBot.Handlers;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -44,6 +41,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.Enums.GameStatusModes;
 
 /**
  * Allows users to set games that they are currently playing, and allows other
@@ -54,6 +52,7 @@ import us.rddt.IRCBot.IRCUtils;
 public class GameStatus implements Runnable {
     // Variables
     private MessageEvent<PircBotX> event;
+    private GameStatusModes mode;
     private Database database;
     private HashMap<String, String> gamesMap = new HashMap<String, String>();
 
@@ -61,8 +60,59 @@ public class GameStatus implements Runnable {
      * Class constructor
      * @param event the MessageEvent that triggered this class
      */
-    public GameStatus(MessageEvent<PircBotX> event) {
+    public GameStatus(MessageEvent<PircBotX> event, GameStatusModes mode) {
         this.event = event;
+        this.mode = mode;
+    }
+    
+    /**
+     * Adds a game to the database of known games
+     * @param gameId the shorthand identifier of the game
+     * @param game the full name of the game
+     * @throws ClassNotFoundException if the database class cannot be found
+     * @throws SQLException if the SQL query fails
+     * @throws IOException if reading from the ResultSet fails
+     */
+    private void addGame(String gameId, String game) throws ClassNotFoundException, SQLException, IOException {
+        // Connect to the database
+        database = new Database();
+        database.connect();
+        
+        // Prepare and execute the SQL query to insert
+        PreparedStatement statement = database.getConnection().prepareStatement("INSERT INTO GameList(GameID, GameName) VALUES (?, ?)");
+        statement.setString(1, gameId);
+        statement.setString(2, game);
+        statement.executeUpdate();
+        
+        // Disconnect from the database
+        database.disconnect();
+        
+        // Add the game to the HashMap for easy access
+        gamesMap.put(gameId, game);
+    }
+    
+    /**
+     * Deletes a game from the database of known games
+     * @param gameId the shorthand identifier of the game
+     * @throws ClassNotFoundException if the database class cannot be found
+     * @throws SQLException if the SQL query fails
+     * @throws IOException if reading from the ResultSet fails
+     */
+    private void deleteGame(String gameId) throws ClassNotFoundException, SQLException, IOException {
+        // Connect to the database
+        database = new Database();
+        database.connect();
+        
+        // Prepare and execute the SQL query to insert
+        PreparedStatement statement = database.getConnection().prepareStatement("DELETE FROM GameList WHERE GameID = ?");
+        statement.setString(1, gameId);
+        statement.executeUpdate();
+        
+        // Disconnect from the database
+        database.disconnect();
+        
+        // Remove the game from the HashMap
+        gamesMap.remove(gameId);
     }
 
     /**
@@ -193,33 +243,27 @@ public class GameStatus implements Runnable {
     }
 
     /**
-     * Loads full game titles from a file into a HashMap for easy access
-     * @throws FileNotFoundException if the file containing the titles cannot be found
+     * Loads full game titles from a database into a HashMap for easy access
+     * @throws ClassNotFoundException if the database class cannot be found
+     * @throws SQLException if the SQL query fails
+     * @throws IOException if reading from the ResultSet fails
      */
-    private void loadGameTitles() throws FileNotFoundException {
-        // Holds the string of the current line being read
-        String currentLine = "";
+    private void loadGameTitles() throws ClassNotFoundException, SQLException, IOException {
+        // Connect to the database
+        database = new Database();
+        database.connect();
 
-        // Open the file for reading
-        BufferedReader reader = new BufferedReader(new FileReader("games.txt"));
-        try {
-            // Loop through each line
-            while((currentLine = reader.readLine()) != null) {
-                // Split the line with a comma delimiter, and add it to the HashMap
-                String[] lineSplit = currentLine.split(",");
-                gamesMap.put(lineSplit[0], lineSplit[1]);
-            }
-        } catch(IOException ex) {
-            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-        } finally {
-            try {
-                // Close the file
-                if(reader != null) reader.close();
-            }
-            catch (IOException ex) {
-                Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-            }
+        // Prepare and execute the SQL query
+        PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM GameList");
+        ResultSet resultSet = statement.executeQuery();
+        
+        // Load all the games from the database into the HashMap
+        while(resultSet.next()) {
+            gamesMap.put(resultSet.getString("GameID"), resultSet.getString("GameName"));
         }
+        
+        // Disconnect from the database
+        database.disconnect();
     }
 
     /**
@@ -306,47 +350,83 @@ public class GameStatus implements Runnable {
         // If they cannot be loaded, just return
         try {
             this.loadGameTitles();
-        } catch (FileNotFoundException ex) {
+        } catch (Exception ex) {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         }
-        // Split the message into parameters
-        String[] parameters = event.getMessage().split(" ");
-        // Check the parameters and perform the appropriate actions
-        if(parameters[1].equalsIgnoreCase("set")) {
-            if(parameters.length > 2) {
-                try {
+        
+        try {
+            if(mode == GameStatusModes.SET) {
+                // Split the command into parameters
+                String parameters[] = event.getMessage().split(" ");
+                // Ensure the user has provided enough parameters for the command
+                if(parameters.length > 2) {
                     setUserStatus(event.getUser().getNick(), parameters[2]);
-                } catch(Exception ex) {
-                    event.respond("Unable to set status - " + ex.getMessage());
-                    return;
+                    event.respond("Done!");
                 }
-                event.respond("Done!");
-            } else {
-                event.respond("You must provide a game to play!");
-            }
-        } else if(parameters[1].equalsIgnoreCase("reset")) {
-            try {
+                else {
+                    event.respond("You must provide a game to play!");
+                }
+            } else if(mode == GameStatusModes.RESET) {
+                // Reset the user's status
                 resetUserStatus(event.getUser().getNick());
-            } catch(Exception ex) {
-                event.respond("Unable to reset status - " + ex.getMessage());
-                return;
-            }
-            event.respond("Done!");
-        } else if(parameters[1].equalsIgnoreCase("all")) {
-            try {
+                event.respond("Done!");
+            } else if(mode == GameStatusModes.ALL) {
+                // Return all statuses
                 getAllStatus();
-            } catch(Exception ex) {
-                event.respond("Unable to get status - " + ex.getMessage());
-                return;
+            } else if(mode == GameStatusModes.USER) {
+                // Split the command into parameters
+                String parameters[] = event.getMessage().split(" ");
+                // Ensure the user has provided enough parameters for the command
+                if(parameters.length > 2) {
+                    getUserStatus(parameters[2]);
+                } else {
+                    event.respond("You must provide a user to retrieve status for!");
+                }
+            } else if(mode == GameStatusModes.GAME) {
+                // Split the command into parameters
+                String parameters[] = event.getMessage().split(" ");
+                // Ensure the user has provided enough parameters for the command
+                if(parameters.length > 2) {
+                    getGameStatus(parameters[2]);
+                } else {
+                    event.respond("You must provide a game to retrieve status for!");
+                }
+            } else if(mode == GameStatusModes.ADD) {
+                // Split the command into parameters
+                String parameters[] = event.getMessage().split(" ");
+                // Ensure the user has provided enough parameters for the command
+                if(parameters.length > 3) {
+                    // Ensure the user is not adding a duplicate game
+                    if(!gamesMap.containsKey(parameters[2])) {
+                        // The rest of the parameters is the full name of the game, so combine them into a string
+                        StringBuilder gameName = new StringBuilder();
+                        for(int i = 3; i < parameters.length; i++) {
+                            gameName.append(parameters[i] + " ");
+                        }
+                        // Add the game
+                        addGame(parameters[2], gameName.toString().trim());
+                        event.respond("Done!");
+                    } else {
+                        event.respond("Game \"" + parameters[2] + "\" already exists!");
+                    }
+                } else {
+                    event.respond("You must provide a shorthand identifier and the full game name to add!");
+                }
+            } else if(mode == GameStatusModes.DELETE) {
+                // Split the command into parameters
+                String parameters[] = event.getMessage().split(" ");
+                // Ensure the user has provided enough parameters for the command
+                if(parameters.length > 2) {
+                    deleteGame(parameters[2]);
+                    event.respond("Done!");
+                } else {
+                    event.respond("You must provide a game to delete!");
+                }
             }
-        } else {
-            try {
-                if(gamesMap.containsKey(parameters[1])) getGameStatus(parameters[1]);
-                else getUserStatus(parameters[1]);
-            } catch (Exception ex) {
-                event.respond("Unable to get status - " + ex.getMessage());
-            }
+        } catch (Exception ex) {
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
+            event.respond("Unable to get status - " + ex.getMessage());
         }
     }
 }
