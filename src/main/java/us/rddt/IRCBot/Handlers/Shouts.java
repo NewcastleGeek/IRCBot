@@ -470,7 +470,7 @@ class TweetShout implements Runnable {
                 twitter.setOAuthConsumer(Configuration.getTwitterConsumerKey(), Configuration.getTwitterConsumerSecret());
                 twitter.setOAuthAccessToken(new AccessToken(Configuration.getTwitterAccessToken(), Configuration.getTwitterAccessSecret()));
                 
-                twitter.updateStatus(toTweet.getSubmitter() + ": " + toTweet.getQuote());
+                twitter.updateStatus(toTweet.getQuote());
             } catch (TwitterException te) {
                 Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(te));
             }
