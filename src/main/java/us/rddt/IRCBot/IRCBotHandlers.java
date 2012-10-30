@@ -63,6 +63,7 @@ import us.rddt.IRCBot.Handlers.SteamUserQuery;
 import us.rddt.IRCBot.Handlers.Topic;
 import us.rddt.IRCBot.Handlers.UserMode;
 import us.rddt.IRCBot.Handlers.Votekick;
+import us.rddt.IRCBot.Implementations.DatabaseCleaner;
 import us.rddt.IRCBot.Implementations.URLGrabber;
 import us.rddt.IRCBot.Statistics.Statistics;
 import us.rddt.IRCBot.Statistics.StatisticsTask;
@@ -436,6 +437,11 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             }
             if(event.getMessage().startsWith("notice ")) {
                 sendAnnouncement(event.getBot(), true, event.getMessage());
+                return;
+            }
+            if(event.getMessage().equals("cleanup")) {
+                new Thread(new DatabaseCleaner()).start();
+                event.respond("Performing database cleanup now!");
                 return;
             }
             if(event.getMessage().equals("disconnect")) {

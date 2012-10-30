@@ -75,7 +75,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
         bot.setAutoSplitMessage(true);
         // Connect to the IRC server
         connect(bot, args);
-        // Create the scheduler for watching subreddits
+        // Create the scheduler
         Configuration.startScheduler(bot);
         // Create the scheduler for statistics updating
         if(!Configuration.getDisabledFunctions().contains("tweetstatistics")) {

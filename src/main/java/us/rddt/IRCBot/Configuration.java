@@ -46,6 +46,7 @@ import java.util.logging.Level;
 
 import org.pircbotx.PircBotX;
 
+import us.rddt.IRCBot.Implementations.DatabaseCleaner;
 import us.rddt.IRCBot.Implementations.RedditWatcher;
 import us.rddt.IRCBot.Logging.IRCLogger;
 
@@ -154,7 +155,7 @@ public class Configuration {
     }
 
     /**
-     * Starts the scheduler(s) (if needed) to monitor configured subreddits
+     * Starts the scheduler(s) to monitor subreddits and handle database cleanup
      * @param bot the IRC bot
      */
     public static void startScheduler(PircBotX bot) {
@@ -163,7 +164,7 @@ public class Configuration {
                 Configuration.getLogger().write(Level.INFO, "Shutting down existing subreddit updates");
                 scheduler.shutdownNow();
             }
-            scheduler = Executors.newScheduledThreadPool(watchSubreddits.length);
+            scheduler = Executors.newScheduledThreadPool(watchSubreddits.length + 1);
             for(int i = 0; i < watchSubreddits.length; i++) {
                 String[] configuration = watchSubreddits[i].split(":");
                 String subreddit = configuration[0];
@@ -171,6 +172,7 @@ public class Configuration {
                 Configuration.getLogger().write(Level.INFO, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
                 scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
             }
+            scheduler.scheduleWithFixedDelay(new DatabaseCleaner(), 5, 24, TimeUnit.HOURS);
         }
     }
 
