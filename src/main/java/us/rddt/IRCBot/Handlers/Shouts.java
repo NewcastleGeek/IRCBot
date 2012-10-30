@@ -146,7 +146,7 @@ public class Shouts implements Runnable {
      */
     private void addNewQuote() throws SQLException {
         // Build and run our update against the database
-        PreparedStatement statement = database.getConnection().prepareStatement("INSERT INTO Quotes(Nick, Date, Channel, Quote) VALUES (?, ?, ?, ?)");
+        PreparedStatement statement = database.getConnection().prepareStatement("INSERT INTO Quotes(Nick, Date, Channel, Quote, Deleted) VALUES (?, ?, ?, ?, 0)");
         statement.setString(1, event.getUser().getNick());
         statement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
         statement.setString(3, event.getChannel().getName());
