@@ -470,7 +470,7 @@ public class Shouts implements Runnable {
             } else if(eventType.equals(ShoutEvents.PURGE_COMMAND)) {
                 // We're dealing with a !who delete --purge command - purge the provided quote from the database
                 // Operator status has already been confirmed at this point
-                if(permanentlyDeleteQuote(event.getMessage().split("!who delete --purge")[1].trim()) > 0) {
+                if(permanentlyDeleteQuote(event.getMessage().split("!who delete --purge ")[1].trim()) > 0) {
                     event.respond("Quote has been purged from the database.");
                 } else {
                     event.respond("Could not purge quote - quote not found.");

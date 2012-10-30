@@ -112,6 +112,14 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     return true;
                 }
             }
+            if(event.getMessage().substring(1).startsWith("who delete --purge ")) {
+                if(!Configuration.getDisabledFunctions().contains("shout")) {
+                    if(isUserOperator(event.getUser(), event.getChannel())) {
+                        new Thread(new Shouts(event, Shouts.ShoutEvents.PURGE_COMMAND)).start();
+                    }
+                    return true;
+                }
+            }
             if(event.getMessage().substring(1).startsWith("who delete ")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     if(isUserOperator(event.getUser(), event.getChannel())) {
@@ -124,14 +132,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     if(isUserOperator(event.getUser(), event.getChannel())) {
                         new Thread(new Shouts(event, Shouts.ShoutEvents.UNDELETE_COMMAND)).start();
-                    }
-                    return true;
-                }
-            }
-            if(event.getMessage().substring(1).startsWith("who delete --purge ")) {
-                if(!Configuration.getDisabledFunctions().contains("shout")) {
-                    if(isUserOperator(event.getUser(), event.getChannel())) {
-                        new Thread(new Shouts(event, Shouts.ShoutEvents.PURGE_COMMAND)).start();
                     }
                     return true;
                 }
