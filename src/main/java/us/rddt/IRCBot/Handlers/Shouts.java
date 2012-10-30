@@ -454,7 +454,7 @@ public class Shouts implements Runnable {
             } else if(eventType.equals(ShoutEvents.DELETE_COMMAND)) {
                 // We're dealing with a !who delete command - delete the provided quote from the database
                 // Operator status has already been confirmed at this point
-                if(deleteQuote(event.getMessage().split("!who delete ")[1].trim()) > 0) {
+                if(deleteQuote(event.getMessage().split(Configuration.getCommandPrefix() + "who delete ")[1].trim()) > 0) {
                     event.respond("Quote has been removed from the database.");
                 } else {
                     event.respond("Could not delete quote - quote not found.");
@@ -462,7 +462,7 @@ public class Shouts implements Runnable {
             } else if(eventType.equals(ShoutEvents.UNDELETE_COMMAND)) {
                 // We're dealing with a !who undelete command - delete the provided quote from the database
                 // Operator status has already been confirmed at this point
-                if(undeleteQuote(event.getMessage().split("!who undelete ")[1].trim()) > 0) {
+                if(undeleteQuote(event.getMessage().split(Configuration.getCommandPrefix() + "who undelete ")[1].trim()) > 0) {
                     event.respond("Quote has been added back into the database.");
                 } else {
                     event.respond("Could not undelete quote - quote not found.");
@@ -470,7 +470,7 @@ public class Shouts implements Runnable {
             } else if(eventType.equals(ShoutEvents.PURGE_COMMAND)) {
                 // We're dealing with a !who delete --purge command - purge the provided quote from the database
                 // Operator status has already been confirmed at this point
-                if(permanentlyDeleteQuote(event.getMessage().split("!who delete --purge ")[1].trim()) > 0) {
+                if(permanentlyDeleteQuote(event.getMessage().split(Configuration.getCommandPrefix() + "who delete --purge ")[1].trim()) > 0) {
                     event.respond("Quote has been purged from the database.");
                 } else {
                     event.respond("Could not purge quote - quote not found.");
