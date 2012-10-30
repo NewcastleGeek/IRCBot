@@ -127,6 +127,8 @@ public class Shouts implements Runnable {
         LIST_USER_COMMAND,
         TOP10_COMMAND,
         DELETE_COMMAND,
+        UNDELETE_COMMAND,
+        PURGE_COMMAND,
     }
 
     /**
@@ -151,14 +153,14 @@ public class Shouts implements Runnable {
         statement.setString(4, event.getMessage().trim());
         statement.executeUpdate();
     }
-
+    
     /**
-     * Deletes a quote from the database
+     * Marks a quote as deleted in the database
      * @param quote the quote text to delete
      * @throws SQLException if the SQL query does not execute correctly
      */
     private int deleteQuote(String quote) throws SQLException {
-        PreparedStatement statement = database.getConnection().prepareStatement("DELETE FROM Quotes WHERE Quote = ? AND Channel = ?");
+        PreparedStatement statement = database.getConnection().prepareStatement("UPDATE Quotes SET Deleted = '1' WHERE Quote = ? AND Channel = ? AND Deleted = '0'");
         statement.setString(1, quote);
         statement.setString(2, event.getChannel().getName());
         return statement.executeUpdate();
@@ -215,7 +217,7 @@ public class Shouts implements Runnable {
      */
     private String getQuoteInfo(String quote) throws SQLException {
         // You should know why by now.
-        PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Quote = ? AND Channel = ?");
+        PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Quote = ? AND Channel = ? AND Deleted = '0'");
         statement.setString(1, quote);
         statement.setString(2, event.getChannel().getName());
         ResultSet resultSet = statement.executeQuery();
@@ -235,13 +237,13 @@ public class Shouts implements Runnable {
      */
     private String getQuoteStats() throws SQLException {
         // First query to pull the total number of quotes
-        PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(*) FROM Quotes WHERE Channel = ?");
+        PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(*) FROM Quotes WHERE Channel = ? AND Deleted = '0'");
         statement.setString(1, event.getChannel().getName());
         ResultSet resultSet = statement.executeQuery();
         if(resultSet.next()) {
             int count = resultSet.getInt("COUNT(*)");
             // and the second to pull the most active shouter.
-            statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
+            statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? AND Deleted = '0' GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
             statement.setString(1, event.getChannel().getName());
             resultSet = statement.executeQuery();
             if(resultSet.next()) {
@@ -259,7 +261,7 @@ public class Shouts implements Runnable {
      * @throws SQLException if the SQL query does not execute correctly
      */
     private String getQuoteLine(int line) throws SQLException {
-        PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? LIMIT ?,1");
+        PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? AND Deleted = '0' LIMIT ?,1");
         statement.setString(1, event.getChannel().getName());
         statement.setInt(2, line - 1);
         ResultSet resultSet = statement.executeQuery();
@@ -278,7 +280,7 @@ public class Shouts implements Runnable {
     private String getRandomQuote() throws SQLException {
         // We use prepared statements to sanitize input from the user
         // Specifying the channel allows different channels to have their own list of quotes available
-        PreparedStatement statement= database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? ORDER BY RAND() LIMIT 1");
+        PreparedStatement statement= database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? AND Deleted = '0' ORDER BY RAND() LIMIT 1");
         statement.setString(1, event.getChannel().getName());
         // Execute our query against the database
         ResultSet resultSet = statement.executeQuery();
@@ -310,7 +312,7 @@ public class Shouts implements Runnable {
         constructedString.append("The top 10 shouters in " + event.getChannel().getName() + ": ");
         // We use prepared statements to sanitize input from the user
         // Specifying the channel allows different channels to have their own list of quotes available
-        PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 10");
+        PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? AND Deleted = '0' GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 10");
         statement.setString(1, event.getChannel().getName());
         // Execute our query against the database
         ResultSet resultSet = statement.executeQuery();
@@ -332,7 +334,7 @@ public class Shouts implements Runnable {
         Map<String, Integer> userStats = new HashMap<String, Integer>();
         // For each user, query the database and insert the result into the map
         for(String nick : nicks) {
-            PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? AND Nick = ?");
+            PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? AND Nick = ? AND Deleted = '0'");
             statement.setString(1, event.getChannel().getName());
             statement.setString(2, nick);
             ResultSet resultSet = statement.executeQuery();
@@ -361,6 +363,30 @@ public class Shouts implements Runnable {
         } catch (NumberFormatException ex) {
             return false;
         }
+    }
+    
+    /**
+     * Permanently deletes a quote from the database
+     * @param quote the quote text to purge
+     * @throws SQLException if the SQL query does not execute correctly
+     */
+    private int permanentlyDeleteQuote(String quote) throws SQLException {
+        PreparedStatement statement = database.getConnection().prepareStatement("DELETE FROM Quotes WHERE Quote = ? AND Channel = ?");
+        statement.setString(1, quote);
+        statement.setString(2, event.getChannel().getName());
+        return statement.executeUpdate();
+    }
+    
+    /**
+     * Marks a quote as undeleted in the database
+     * @param quote the quote text to undelete
+     * @throws SQLException if the SQL query does not execute correctly
+     */
+    private int undeleteQuote(String quote) throws SQLException {
+        PreparedStatement statement = database.getConnection().prepareStatement("UPDATE Quotes SET Deleted = '0' WHERE Quote = ? AND Channel = ?");
+        statement.setString(1, quote);
+        statement.setString(2, event.getChannel().getName());
+        return statement.executeUpdate();
     }
 
     /**
@@ -432,6 +458,22 @@ public class Shouts implements Runnable {
                     event.respond("Quote has been removed from the database.");
                 } else {
                     event.respond("Could not delete quote - quote not found.");
+                }
+            } else if(eventType.equals(ShoutEvents.UNDELETE_COMMAND)) {
+                // We're dealing with a !who undelete command - delete the provided quote from the database
+                // Operator status has already been confirmed at this point
+                if(undeleteQuote(event.getMessage().split("!who undelete ")[1].trim()) > 0) {
+                    event.respond("Quote has been added back into the database.");
+                } else {
+                    event.respond("Could not undelete quote - quote not found.");
+                }    
+            } else if(eventType.equals(ShoutEvents.PURGE_COMMAND)) {
+                // We're dealing with a !who delete --purge command - purge the provided quote from the database
+                // Operator status has already been confirmed at this point
+                if(permanentlyDeleteQuote(event.getMessage().split("!who delete --purge")[1].trim()) > 0) {
+                    event.respond("Quote has been purged from the database.");
+                } else {
+                    event.respond("Could not purge quote - quote not found.");
                 }
             }
             // Disconnect from the database
