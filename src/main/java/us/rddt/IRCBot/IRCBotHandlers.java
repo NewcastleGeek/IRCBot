@@ -50,6 +50,7 @@ import us.rddt.IRCBot.Enums.GameStatusModes;
 import us.rddt.IRCBot.Enums.StatisticsModes;
 import us.rddt.IRCBot.Enums.TopicUpdates;
 import us.rddt.IRCBot.Enums.UserModes;
+import us.rddt.IRCBot.Enums.VotekickModes;
 import us.rddt.IRCBot.Handlers.Calculator;
 import us.rddt.IRCBot.Handlers.Convert;
 import us.rddt.IRCBot.Handlers.Define;
@@ -247,7 +248,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             }
             if(event.getMessage().substring(1).startsWith("votekick ")) {
                 if(!Configuration.getDisabledFunctions().contains("votekick")) {
-                    new Thread(new Votekick(event)).start();
+                    new Thread(new Votekick(event, VotekickModes.UPDATE_VOTEKICK)).start();
                 }
             }
             if(event.getMessage().substring(1).startsWith("appendtopic ")) {
@@ -420,6 +421,9 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
     public void onPart(PartEvent<PircBotX> event) {
         if(!Configuration.getDisabledFunctions().contains("seen")) {
             new Thread(new Seen(event)).start();
+        }
+        if(!Configuration.getDisabledFunctions().contains("votekick")) {
+            new Thread(new Votekick(event, VotekickModes.USER_LEFT)).start();
         }
     }
 

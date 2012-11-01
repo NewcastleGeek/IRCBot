@@ -34,8 +34,10 @@ import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.PartEvent;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.Enums.VotekickModes;
 import us.rddt.IRCBot.Implementations.VotekickObject;
 
 /**
@@ -48,14 +50,28 @@ import us.rddt.IRCBot.Implementations.VotekickObject;
 public class Votekick implements Runnable {
     // Variables
     private MessageEvent<PircBotX> event;
+    private PartEvent<PircBotX> pEvent;
+    private VotekickModes mode;
     private static volatile HashMap<Channel,VotekickObject> currVotekicks = new HashMap<Channel,VotekickObject>();
 
     /**
      * Class constructor
      * @param event the MessageEvent that triggered this class
+     * @param mode the mode this class should execute as
      */
-    public Votekick(MessageEvent<PircBotX> event) {
+    public Votekick(MessageEvent<PircBotX> event, VotekickModes mode) {
         this.event = event;
+        this.mode = mode;
+    }
+
+    /**
+     * Class constructor
+     * @param event the PartEvent that triggered this class
+     * @param mode the mode this class should execute as
+     */
+    public Votekick(PartEvent<PircBotX> event, VotekickModes mode) {
+        this.pEvent = event;
+        this.mode = mode;
     }
 
     /**
@@ -94,7 +110,9 @@ public class Votekick implements Runnable {
      * @return the votekick object
      */
     private VotekickObject getVotekickObject() {
-        return currVotekicks.get(event.getChannel());
+        if(event != null) return currVotekicks.get(event.getChannel());
+        else if (pEvent != null) return currVotekicks.get(pEvent.getChannel());
+        else return null;
     }
 
     /**
@@ -155,42 +173,53 @@ public class Votekick implements Runnable {
      * @see java.lang.Runnable#run()
      */
     public void run() {
-        // Split the message into parameters
-        String[] parameters = event.getMessage().split(" ");
-        // Votekick commands always take at least one argument
-        if(parameters.length > 1) {
-            // Make sure the user isn't trying to apply it to themselves or the bot
-            if(parameters[1].equals(event.getUser().getNick())) {
-                event.respond("You cannot participate in a votekick against yourself!");
-            } else if(parameters[1].equals(event.getBot().getNick())) {
-                event.respond("You cannot votekick the bot!");
-            } else {
-                // If there is already a vote in progress
-                if(isVoteInProgress(event.getChannel())) {
-                    // Make sure the user hasn't already voted
-                    if(getVotekickObject().getVotedUsers().contains(event.getUser().getHostmask())) {
-                        event.respond("You have already voted - you cannot vote again!");
-                    } else {
-                        // Make sure the user is voting against the votekicked user, otherwise tell them to wait until the vote is over
-                        if(parameters[1].equals(getVotekickObject().getUser().getNick())) {
-                            addVote(event.getUser());
-                            event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + getVotekickObject().getUser().getNick() + "! (" + getVotekickObject().getNumVotes() + "/" + getVotekickObject().getNumVotesRequired() + " needed)");
-                            // If there are enough votes for the votekick to pass, kick the user and reset the votekick
-                            if(getVotekickObject().hasNeededVotes()) {
-                                event.getBot().sendMessage(event.getChannel(), "The votekick against " + getVotekickObject().getUser().getNick() + " has succeeded!");
-                                kickUser(event.getChannel(), getVotekickObject().getUser());
-                            }
+        if(mode == VotekickModes.UPDATE_VOTEKICK) {
+            // Split the message into parameters
+            String[] parameters = event.getMessage().split(" ");
+            // Votekick commands always take at least one argument
+            if(parameters.length > 1) {
+                // Make sure the user isn't trying to apply it to themselves or the bot
+                if(parameters[1].equals(event.getUser().getNick())) {
+                    event.respond("You cannot participate in a votekick against yourself!");
+                } else if(parameters[1].equals(event.getBot().getNick())) {
+                    event.respond("You cannot votekick the bot!");
+                } else {
+                    // If there is already a vote in progress
+                    if(isVoteInProgress(event.getChannel())) {
+                        // Make sure the user hasn't already voted
+                        if(getVotekickObject().getVotedUsers().contains(event.getUser().getHostmask())) {
+                            event.respond("You have already voted - you cannot vote again!");
                         } else {
-                            event.respond("You cannot start another votekick when one is currently in progress!");
+                            // Make sure the user is voting against the votekicked user, otherwise tell them to wait until the vote is over
+                            if(parameters[1].equals(getVotekickObject().getUser().getNick())) {
+                                addVote(event.getUser());
+                                event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + getVotekickObject().getUser().getNick() + "! (" + getVotekickObject().getNumVotes() + "/" + getVotekickObject().getNumVotesRequired() + " needed)");
+                                // If there are enough votes for the votekick to pass, kick the user and reset the votekick
+                                if(getVotekickObject().hasNeededVotes()) {
+                                    event.getBot().sendMessage(event.getChannel(), "The votekick against " + getVotekickObject().getUser().getNick() + " has succeeded!");
+                                    kickUser(event.getChannel(), getVotekickObject().getUser());
+                                }
+                            } else {
+                                event.respond("You cannot start another votekick when one is currently in progress!");
+                            }
+                        }
+                    } else {
+                        // Make sure the user to votekick actually exists in the channel
+                        if(event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(parameters[1]))) {
+                            startNewVotekick(event.getChannel(), event.getUser(), event.getBot().getUser(parameters[1]));
+                        } else {
+                            event.respond("You cannot start a vote against a user that is not in the channel!");
                         }
                     }
-                } else {
-                    // Make sure the user to votekick actually exists in the channel
-                    if(event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(parameters[1]))) {
-                        startNewVotekick(event.getChannel(), event.getUser(), event.getBot().getUser(parameters[1]));
-                    } else {
-                        event.respond("You cannot start a vote against a user that is not in the channel!");
-                    }
+                }
+            }
+        } else if(mode == VotekickModes.USER_LEFT) {
+            // Ensure a vote is currently in progress
+            if(isVoteInProgress(pEvent.getChannel())) {
+                // If the user leaving is the user being votekicked, end the vote against them
+                if(pEvent.getUser() == getVotekickObject().getUser()) {
+                    pEvent.getBot().sendMessage(pEvent.getChannel(), "The votekick against " + pEvent.getUser().getNick() + " has ended - they have left the channel!");
+                    finishVote(pEvent.getChannel());
                 }
             }
         }
