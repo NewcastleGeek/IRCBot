@@ -127,7 +127,7 @@ public class UserMode implements Runnable {
      * @param toChange the user to receive the mode change
      */
     private boolean isAllowable(Channel channel, User requester, User toChange) {
-        if(UserUtils.getLevel(requester, channel) >= UserUtils.CHANNEL_HALFOP && UserUtils.getLevel(requester, channel) >= UserUtils.getLevel(toChange, channel)) return true;
+        if(UserUtils.getLevel(requester, channel) >= UserUtils.CHANNEL_HALFOP && UserUtils.getLevel(requester, channel) > UserUtils.getLevel(toChange, channel)) return true;
         else return false;
     }
 
