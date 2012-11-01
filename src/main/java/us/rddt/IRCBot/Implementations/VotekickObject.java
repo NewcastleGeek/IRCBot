@@ -54,7 +54,7 @@ public class VotekickObject {
      */
     public VotekickObject(User user, User startingUser, int numVotesRequired) {
         this.user = user;
-        this.numVotes = 0;
+        this.numVotes = 1;
         this.numVotesRequired = numVotesRequired;
         votedUsers.add(startingUser.getHostmask());
     }
