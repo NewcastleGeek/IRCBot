@@ -45,6 +45,8 @@ public class DatabaseCleaner implements Runnable {
         Database database;
         PreparedStatement statement;
         int status;
+        
+        Configuration.getLogger().write(Level.INFO, "Database cleanup initialized.");
 
         try {
             // Connect to the database
@@ -64,6 +66,8 @@ public class DatabaseCleaner implements Runnable {
             Configuration.getLogger().write(Level.INFO, "Cleaned up " + status + " stale game statuses from the database.");
 
             database.disconnect();
+            
+            Configuration.getLogger().write(Level.INFO, "Database cleanup complete.");
         } catch (Exception ex) {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }

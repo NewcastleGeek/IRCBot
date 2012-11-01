@@ -172,7 +172,7 @@ public class Configuration {
                 Configuration.getLogger().write(Level.INFO, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
                 scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
             }
-            scheduler.scheduleWithFixedDelay(new DatabaseCleaner(), 1, 24, TimeUnit.HOURS);
+            scheduler.scheduleWithFixedDelay(new DatabaseCleaner(), 1, 12, TimeUnit.HOURS);
         }
     }
 
