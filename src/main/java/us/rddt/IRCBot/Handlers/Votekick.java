@@ -133,6 +133,8 @@ public class Votekick implements Runnable {
     private void startNewVotekick(Channel channel, User startingUser, User votekickUser) {
         // Determine the number of votes required to pass the votekick
         int numVotesRequired = (int)(channel.getUsers().size() * ((double)Configuration.getVotekickPassPercent() / 100));
+        // Ensure that one other vote is always required
+        if(numVotesRequired < 2) numVotesRequired = 2;
         // Create the VotekickObject and announce the vote
         synchronized(currVotekicks) {
             currVotekicks.put(channel, new VotekickObject(votekickUser, startingUser, numVotesRequired));
