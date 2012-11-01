@@ -123,11 +123,11 @@ public class UserMode implements Runnable {
     /**
      * Ensure the kick/ban operation is in accordance to IRC rules
      * @param channel the channel the operation is being performed on
-     * @param op the op requesting the mode change
+     * @param requester the user requesting the mode change
      * @param toChange the user to receive the mode change
      */
-    private boolean isAllowable(Channel channel, User op, User toChange) {
-        if(UserUtils.getLevel(op, channel) > UserUtils.getLevel(toChange, channel)) return true;
+    private boolean isAllowable(Channel channel, User requester, User toChange) {
+        if(UserUtils.getLevel(requester, channel) >= UserUtils.CHANNEL_HALFOP && UserUtils.getLevel(requester, channel) >= UserUtils.getLevel(toChange, channel)) return true;
         else return false;
     }
 
