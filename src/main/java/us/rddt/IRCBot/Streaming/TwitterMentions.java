@@ -28,6 +28,8 @@
 
 package us.rddt.IRCBot.Streaming;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +43,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import twitter4j.User;
 import twitter4j.auth.AccessToken;
 
 import us.rddt.IRCBot.Configuration;
@@ -122,16 +125,23 @@ class TwitterListener implements Runnable {
                 }
                 // Otherwise, there are new mentions
                 else {
+                    // Hold a list of users who have already tweeted at the bot this session
+                    List<User> alreadyTweeted = new ArrayList<User>();
                     // We want to print out every new mention
                     for(Status s : twitter.getMentions()) {
                         // If the current mention equals our last known mention, then we've displayed
                         // everything new so just return.
                         if(s.equals(TwitterMentions.getLastMention())) break;
                         
+                        // To prevent abuse and flooding, we only allow one tweet to be broadcast
+                        // per update check. If the user has already tweeted, skip to the next tweet.
+                        if(alreadyTweeted.contains(s.getUser())) continue;
+                        
                         // Ensure that we are part of the channel to broadcast to
                         Channel channelToBroadcast = bot.getChannel(Configuration.getMainChannel());
                         if(bot.getChannels().contains(channelToBroadcast)) {
                             bot.sendMessage(channelToBroadcast, "[Twitter Mention] " + Colors.BOLD + "@" + s.getUser().getScreenName() + Colors.NORMAL + ": " + s.getText());
+                            alreadyTweeted.add(s.getUser());
                         }
                     }
                     // Save the new most recent mention as the last one
