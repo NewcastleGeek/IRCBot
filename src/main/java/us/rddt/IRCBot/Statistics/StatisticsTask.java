@@ -28,6 +28,7 @@
 
 package us.rddt.IRCBot.Statistics;
 
+import java.text.DecimalFormat;
 import java.util.TimerTask;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -84,6 +85,9 @@ public class StatisticsTask extends TimerTask {
                     Entry<String, Integer> mostShouts = cs.getValue().getMostShouts();
                     Entry<String, Integer> mostURLs = cs.getValue().getMostUrls();
                     
+                    // Rounding float values for display
+                    DecimalFormat df = new DecimalFormat("00.#");
+                    
                     // Post the update to Twitter!
                     // Sleep for 2 seconds after each tweet to avoid flooding Twitter and breaking API access limits.
                     twitter.updateStatus("Today in " + cs.getKey().getName() + ": " + cs.getValue().getTotalLines() + " total lines spoken, " + cs.getValue().getTotalShouts() + " total shouts and " + cs.getValue().getTotalUrls() + " total linked URLs.");
@@ -96,10 +100,10 @@ public class StatisticsTask extends TimerTask {
                      */
                     StringBuilder tweetBuilder = new StringBuilder();
                     if(mostLines != null) {
-                        tweetBuilder.append(mostLines.getKey() + " was most chatty in " + cs.getKey().getName() + ", speaking " + mostLines.getValue() + " times. ");
+                        tweetBuilder.append(mostLines.getKey() + " was most chatty in " + cs.getKey().getName() + ", speaking " + mostLines.getValue() + " times (" + df.format((mostLines.getValue() * 100.0) / cs.getValue().getTotalLines()) + "% of total). ");
                     }
                     if(mostShouts != null) {
-                        tweetBuilder.append(mostShouts.getKey() + " loved their CAPS LOCK key so much they used it " + mostShouts.getValue() + " times. ");
+                        tweetBuilder.append(mostShouts.getKey() + " ANGRILY shouted " + mostShouts.getValue() + " times. ");
                     }
 
                     twitter.updateStatus(tweetBuilder.toString());
