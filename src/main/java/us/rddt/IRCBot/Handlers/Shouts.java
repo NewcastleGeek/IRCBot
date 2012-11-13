@@ -334,12 +334,12 @@ public class Shouts implements Runnable {
         Map<String, Integer> userStats = new HashMap<String, Integer>();
         // For each user, query the database and insert the result into the map
         for(String nick : nicks) {
-            PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? AND Nick = ? AND Deleted = '0'");
+            PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(Nick) FROM Quotes WHERE Channel = ? AND Nick = ? AND Deleted = '0'");
             statement.setString(1, event.getChannel().getName());
             statement.setString(2, nick);
             ResultSet resultSet = statement.executeQuery();
             if(resultSet.next()) {
-                userStats.put(resultSet.getString("Nick"), resultSet.getInt("COUNT(Nick)"));
+                userStats.put(nick, resultSet.getInt("COUNT(Nick)"));
             } else {
                 userStats.put(nick, 0);
             }
