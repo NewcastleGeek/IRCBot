@@ -29,6 +29,7 @@
 package us.rddt.IRCBot.Handlers;
 
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
@@ -38,6 +39,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Enums.VotekickModes;
 import us.rddt.IRCBot.Implementations.VotekickObject;
 
@@ -160,8 +162,7 @@ public class Votekick implements Runnable {
         try {
             Thread.sleep((int)(Configuration.getVotekickDuration() / 2) * 1000);
         } catch (InterruptedException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
         if(isVoteInProgress(channel)) {
             event.getBot().sendMessage(channel, "There are " + (int)(Configuration.getVotekickDuration() / 2) + " seconds remaining in the vote to kick " + getVotekickObject().getUser().getNick() + ". (" + getVotekickObject().getNumVotes() + " votes, " + getVotekickObject().getNumVotesRequired() + " needed)");
@@ -173,8 +174,7 @@ public class Votekick implements Runnable {
         try {
             Thread.sleep((int)(Configuration.getVotekickDuration() / 2) * 1000);
         } catch (InterruptedException ex) {
-            // TODO Auto-generated catch block
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
         if(isVoteInProgress(channel)) {
             event.getBot().sendMessage(channel, "The vote to kick " + getVotekickObject().getUser().getNick() + " has failed! (" + getVotekickObject().getNumVotes() + " votes, " + getVotekickObject().getNumVotesRequired() + " needed)");
