@@ -33,6 +33,7 @@ import java.util.HashMap;
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
+import org.pircbotx.hooks.events.KickEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 
@@ -50,6 +51,7 @@ import us.rddt.IRCBot.Implementations.VotekickObject;
 public class Votekick implements Runnable {
     // Variables
     private MessageEvent<PircBotX> event;
+    private KickEvent<PircBotX> kEvent;
     private PartEvent<PircBotX> pEvent;
     private VotekickModes mode;
     private static volatile HashMap<Channel,VotekickObject> currVotekicks = new HashMap<Channel,VotekickObject>();
@@ -61,6 +63,16 @@ public class Votekick implements Runnable {
      */
     public Votekick(MessageEvent<PircBotX> event, VotekickModes mode) {
         this.event = event;
+        this.mode = mode;
+    }
+    
+    /**
+     * Class constructor
+     * @param event the KickEvent that triggered this class
+     * @param mode the mode this class should execute as
+     */
+    public Votekick(KickEvent<PircBotX> event, VotekickModes mode) {
+        this.kEvent = event;
         this.mode = mode;
     }
 
@@ -111,6 +123,7 @@ public class Votekick implements Runnable {
      */
     private VotekickObject getVotekickObject() {
         if(event != null) return currVotekicks.get(event.getChannel());
+        else if (kEvent != null) return currVotekicks.get(kEvent.getChannel());
         else if (pEvent != null) return currVotekicks.get(pEvent.getChannel());
         else return null;
     }
@@ -222,6 +235,15 @@ public class Votekick implements Runnable {
                 if(pEvent.getUser() == getVotekickObject().getUser()) {
                     pEvent.getBot().sendMessage(pEvent.getChannel(), "The votekick against " + pEvent.getUser().getNick() + " has ended - they have left the channel!");
                     finishVote(pEvent.getChannel());
+                }
+            }
+        } else if(mode == VotekickModes.USER_KICKED) {
+            // Ensure a vote is currently in progress
+            if(isVoteInProgress(kEvent.getChannel())) {
+                // If the user leaving is the user being votekicked, end the vote against them
+                if(kEvent.getRecipient() == getVotekickObject().getUser()) {
+                    kEvent.getBot().sendMessage(kEvent.getChannel(), "The votekick against " + kEvent.getRecipient().getNick() + " has ended - they have been kicked from the channel!");
+                    finishVote(kEvent.getChannel());
                 }
             }
         }

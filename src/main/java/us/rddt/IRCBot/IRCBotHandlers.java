@@ -377,6 +377,13 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
     public void onKick(KickEvent<PircBotX> event) {
         // Nobody should be able to kick the bot from the channel, so rejoin immediately if we are kicked
         event.getBot().joinChannel(event.getChannel().getName());
+        
+        if(!Configuration.getDisabledFunctions().contains("seen")) {
+            new Thread(new Seen(event)).start();
+        }
+        if(!Configuration.getDisabledFunctions().contains("votekick")) {
+            new Thread(new Votekick(event, VotekickModes.USER_KICKED)).start();
+        }
     }
 
     /**

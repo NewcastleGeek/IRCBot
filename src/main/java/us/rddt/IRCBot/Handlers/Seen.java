@@ -34,6 +34,7 @@ import java.util.logging.Level;
 
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.events.KickEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
@@ -58,6 +59,7 @@ public class Seen implements Runnable {
      */
     private MessageEvent<PircBotX> event;
     private boolean hasParted;
+    private KickEvent<PircBotX> kEvent;
     private PartEvent<PircBotX> pEvent;
     private QuitEvent<PircBotX> qEvent;
 
@@ -69,6 +71,15 @@ public class Seen implements Runnable {
      */
     public Seen(MessageEvent<PircBotX> event) {
         this.event = event;
+    }
+    
+    /**
+     * Overloadable class constructor
+     * @param kEvent the kicking event that triggered this class
+     */
+    public Seen(KickEvent<PircBotX> kEvent) {
+        this.kEvent = kEvent;
+        this.hasParted = true;
     }
 
     /**
@@ -104,6 +115,9 @@ public class Seen implements Runnable {
         else {
             if(pEvent != null) {
                 updateSeen(pEvent.getUser().getNick(), pEvent.getChannel().getName());
+                return;
+            } else if(kEvent != null) {
+                updateSeen(kEvent.getRecipient().getNick(), kEvent.getChannel().getName());
                 return;
             } else if(qEvent != null) {
                 for(Channel c : qEvent.getUser().getChannels()) {
