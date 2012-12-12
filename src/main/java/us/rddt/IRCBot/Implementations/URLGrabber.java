@@ -57,6 +57,7 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.Enums.RedditTypes;
 
 /**
  * Detects and returns information for URLs the bot sees in a channel. For normal
@@ -80,7 +81,9 @@ public class URLGrabber implements Runnable {
     // Regex pattern to match imgur links
     private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
     // Regex pattern to match Reddit links
-    private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/.+\\/.+(\\/)?(\\s|\\n)");
+    private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/.+\\/.+(\\/)?");
+    // Regex pattern to match Reddit subreddits
+    private static final Pattern REDDIT_SUBREDDIT = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/?");
     // Regex pattern to match Reddit users
     private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
     // Regex pattern to match Twitter tweets
@@ -327,15 +330,15 @@ public class URLGrabber implements Runnable {
     /**
      * Prints the title of a Reddit submissions or information about a user depending on the URL provided
      * @param redditURL the reddit URL to extract the data from
-     * @param isUser is the URL of a user's page
+     * @param type the type of reddit link to parse
      */
-    private void returnReddit(URL redditURL, boolean isUser) {
+    private void returnReddit(URL redditURL, RedditTypes type) {
         // Variables
         URL appendURL = null;
 
         // Construct the appropriate URL to get the JSON via the Reddit API
         try {
-            if(isUser) {
+            if(type == RedditTypes.USER) {
                 appendURL = new URL(redditURL.toString() + "/about.json");
                 RedditUser user = RedditUser.getUser(appendURL);
                 String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + user.getName() + Colors.NORMAL + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated();
@@ -344,8 +347,7 @@ public class URLGrabber implements Runnable {
                 }
                 event.getBot().sendMessage(event.getChannel(), formattedString);
                 return;
-            }
-            else {
+            } else if(type == RedditTypes.URL) {
                 appendURL = new URL(redditURL.toString() + "/.json");
                 RedditLink link = RedditLink.getLink(appendURL);
                 String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (submitted by " + link.getAuthor() + " to r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)";
@@ -354,6 +356,15 @@ public class URLGrabber implements Runnable {
                 }
                 if(link.isNSFL()) {
                     formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFL]");
+                }
+                event.getBot().sendMessage(event.getChannel(), formattedString);
+                return;
+            } else if(type == RedditTypes.SUBREDDIT) {
+                appendURL = new URL(redditURL.toString() + "/about.json");
+                RedditSubreddit subreddit = RedditSubreddit.getSubreddit(appendURL);
+                String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + "/r/" +  subreddit.getDisplayName() + Colors.NORMAL + " : " + subreddit.getPublicDescription() + " (" + subreddit.getFormattedSubscribers() + " subscribers)";
+                if(subreddit.isOver18()) {
+                    formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFW]");
                 }
                 event.getBot().sendMessage(event.getChannel(), formattedString);
                 return;
@@ -449,15 +460,20 @@ public class URLGrabber implements Runnable {
         urlMatcher = REDDIT_LINK.matcher(url.toString());
         if(urlMatcher.find()) {
             try {
-                returnReddit(new URL(urlMatcher.group()), false);
+                returnReddit(new URL(urlMatcher.group()), RedditTypes.URL);
             } catch (MalformedURLException ex) {
                 return;
             }
             return;
         }
+        urlMatcher = REDDIT_SUBREDDIT.matcher(url.toString());
+        if(urlMatcher.find()) {
+            returnReddit(url, RedditTypes.SUBREDDIT);
+            return;
+        }
         urlMatcher = REDDIT_USER.matcher(url.toString());
         if(urlMatcher.find()) {
-            returnReddit(url, true);
+            returnReddit(url, RedditTypes.USER);
             return;
         }
         urlMatcher = IMGUR_LINK.matcher(url.toString());
