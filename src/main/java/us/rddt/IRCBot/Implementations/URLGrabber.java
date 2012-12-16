@@ -54,7 +54,6 @@ import org.pircbotx.hooks.events.MessageEvent;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Enums.RedditTypes;
@@ -386,7 +385,7 @@ public class URLGrabber implements Runnable {
     private void returnTweet(long tweetID) {
         try {
             // Get the Tweet and send it back to the channel
-            Twitter twitter = new TwitterFactory().getInstance();
+            Twitter twitter = Configuration.getTwitterInstance();
             Status status = twitter.showStatus(tweetID);
             event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] " + Colors.BOLD + "@" + status.getUser().getScreenName() + Colors.NORMAL + ": " + status.getText());
         } catch (TwitterException te) {

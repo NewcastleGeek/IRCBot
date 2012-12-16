@@ -42,9 +42,7 @@ import org.pircbotx.PircBotX;
 import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
 import twitter4j.User;
-import twitter4j.auth.AccessToken;
 
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
@@ -106,21 +104,19 @@ class TwitterListener implements Runnable {
      * @see java.lang.Runnable#run()
      */
     public void run() {
-        Twitter twitter = new TwitterFactory().getInstance();  
-        twitter.setOAuthConsumer(Configuration.getTwitterConsumerKey(), Configuration.getTwitterConsumerSecret());
-        twitter.setOAuthAccessToken(new AccessToken(Configuration.getTwitterAccessToken(), Configuration.getTwitterAccessSecret()));
+        Twitter twitter = Configuration.getTwitterInstance();
         
         try {
             // Ensure that at least one mention is available
-            if(twitter.getMentions().size() > 0) {
+            if(twitter.getMentionsTimeline().size() > 0) {
                 // If there are no last mentions, then the bot has just been started, so save it
                 if(TwitterMentions.getLastMention() == null) {
-                    TwitterMentions.setLastMention(twitter.getMentions().get(0));
+                    TwitterMentions.setLastMention(twitter.getMentionsTimeline().get(0));
                     return;
                 }
                 // Otherwise, if the last mention equals the most recent mention, then there is nothing
                 // new to report, so just return.
-                else if(TwitterMentions.getLastMention().equals(twitter.getMentions().get(0))) {
+                else if(TwitterMentions.getLastMention().equals(twitter.getMentionsTimeline().get(0))) {
                     return;
                 }
                 // Otherwise, there are new mentions
@@ -128,7 +124,7 @@ class TwitterListener implements Runnable {
                     // Hold a list of users who have already tweeted at the bot this session
                     List<User> alreadyTweeted = new ArrayList<User>();
                     // We want to print out every new mention
-                    for(Status s : twitter.getMentions()) {
+                    for(Status s : twitter.getMentionsTimeline()) {
                         // If the current mention equals our last known mention, then we've displayed
                         // everything new so just return.
                         if(s.equals(TwitterMentions.getLastMention())) break;
@@ -145,7 +141,7 @@ class TwitterListener implements Runnable {
                         }
                     }
                     // Save the new most recent mention as the last one
-                    TwitterMentions.setLastMention(twitter.getMentions().get(0));
+                    TwitterMentions.setLastMention(twitter.getMentionsTimeline().get(0));
                 }
             }
         } catch (TwitterException te) {

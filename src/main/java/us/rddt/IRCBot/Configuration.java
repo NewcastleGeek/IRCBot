@@ -46,6 +46,9 @@ import java.util.logging.Level;
 
 import org.pircbotx.PircBotX;
 
+import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
+import twitter4j.conf.ConfigurationBuilder;
 import us.rddt.IRCBot.Implementations.DatabaseCleaner;
 import us.rddt.IRCBot.Implementations.RedditWatcher;
 import us.rddt.IRCBot.Logging.IRCLogger;
@@ -69,18 +72,18 @@ public class Configuration {
     private static boolean use_ssl;
     private static boolean ssl_verify;
     private static String[] channels;
-    
+
     private static char command_prefix;
-    
+
     private static String channel_announcement;
     private static String[] channel_participating;
-    
+
     private static List<String> disabled_functions;
-    
+
     private static String main_channel;
 
     private static String[] watchSubreddits;
-    
+
     private static int votekickDuration;
     private static int votekickPassPercent;
 
@@ -97,14 +100,15 @@ public class Configuration {
     private static String sqlite_database;
 
     private static ScheduledExecutorService scheduler;
-    
+
     private static IRCLogger logger;
     private static String log_output;
-    
+
     private static String user_agent;
-    
+
     private static String steam_api_key;
-    
+
+    private static Twitter twitter_instance;
     private static String twitter_access_token;
     private static String twitter_access_secret;
     private static String twitter_consumer_key;
@@ -196,6 +200,30 @@ public class Configuration {
     }
 
     /**
+     * Returns a new or existing Twitter instance.
+     * @return a Twitter instance
+     */
+    public static Twitter getTwitterInstance() {
+        if(twitter_instance != null) return twitter_instance;
+        else {
+            if(getTwitterConsumerKey() != null && getTwitterConsumerSecret() != null && getTwitterAccessToken() != null && getTwitterAccessSecret() != null) {
+                getLogger().write(Level.INFO, "Twitter credentials provided, making an authentication attempt.");
+                ConfigurationBuilder cb = new ConfigurationBuilder();
+                cb.setDebugEnabled(true)
+                .setOAuthConsumerKey(Configuration.getTwitterConsumerKey())
+                .setOAuthConsumerSecret(Configuration.getTwitterConsumerSecret())
+                .setOAuthAccessToken(Configuration.getTwitterAccessToken())
+                .setOAuthAccessTokenSecret(Configuration.getTwitterAccessSecret());
+                twitter_instance = new TwitterFactory(cb.build()).getInstance();
+            } else {
+                getLogger().write(Level.INFO, "Twitter credentials not provided, skipping authentication.");
+                twitter_instance = TwitterFactory.getSingleton();
+            }
+            return twitter_instance;
+        }
+    }
+
+    /**
      * Returns the bot's nickname
      * @return the bot's nickname
      */
@@ -234,7 +262,7 @@ public class Configuration {
     public static String getPassword() {
         return password;
     }
-    
+
     /**
      * Returns the channels to join
      * @return the channels to join
@@ -242,7 +270,7 @@ public class Configuration {
     public static String[] getChannels() {
         return channels;
     }
-    
+
     /**
      * Returns the command prefix
      * @return the command prefix
@@ -250,7 +278,7 @@ public class Configuration {
     public static char getCommandPrefix() {
         return command_prefix;
     }
-    
+
     /**
      * Returns the channel announcement
      * @return the channel announcement
@@ -258,7 +286,7 @@ public class Configuration {
     public static String getChannelAnnouncement() {
         return channel_announcement;
     }
-    
+
     /**
      * Returns the list of participating channels to send announcements in
      * @return the list of participating channels to send announcements in
@@ -266,7 +294,7 @@ public class Configuration {
     public static String[] getChannelsParticipating() {
         return channel_participating;
     }
-    
+
     /**
      * Returns the list of functions to disable
      * @return the list of functions to disable
@@ -274,7 +302,7 @@ public class Configuration {
     public static List<String> getDisabledFunctions() {
         return disabled_functions;
     }
-    
+
     /**
      * Return the main channel
      * @return the main channel
@@ -282,7 +310,7 @@ public class Configuration {
     public static String getMainChannel() {
         return main_channel;
     }
-    
+
     /**
      * Returns the subreddits to watch
      * @return the subreddits to watch
@@ -290,7 +318,7 @@ public class Configuration {
     public static String[] getWatchSubreddits() {
         return watchSubreddits;
     }
-    
+
     /**
      * Returns the duration of votekicks in seconds
      * @return the duration of votekicks in seconds
@@ -298,7 +326,7 @@ public class Configuration {
     public static int getVotekickDuration() {
         return votekickDuration;
     }
-    
+
     /**
      * Returns the percentage required for a votekick to pass
      * @return the percentage required for a votekick to pass
@@ -369,7 +397,7 @@ public class Configuration {
     public static String getSQLiteDatabase() {
         return sqlite_database;
     }
-    
+
     /**
      * Returns the logger for use if it exists, otherwise initialize and return a new one
      * @return the logger to use
@@ -385,14 +413,14 @@ public class Configuration {
         }
         return logger;
     }
-    
+
     public static String getUserAgent() {
         if(user_agent != null && !user_agent.isEmpty()) {
             return user_agent;
         }
         return "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
     }
-    
+
     /**
      * Returns the log file to output the HTML-formatted log to
      * @return the log file to output the HTML-formatted log to
@@ -400,7 +428,7 @@ public class Configuration {
     public static String getLogFile() {
         return log_output;
     }
-    
+
     /**
      * Returns the Steam API key
      * @return the Steam API key
@@ -408,7 +436,7 @@ public class Configuration {
     public static String getSteamAPIKey() {
         return steam_api_key;
     }
-    
+
     /**
      * Returns the access token for Twitter
      * @return the access token for Twitter
@@ -448,7 +476,7 @@ public class Configuration {
     public static boolean isSSL() {
         return use_ssl;
     }
-    
+
     /**
      * Returns if the SSL connection should verify certificates
      * @return true for SSL certificate verification, false to trust all certificates
