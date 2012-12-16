@@ -12,11 +12,13 @@ Prerequisites
 In order to build and use IRCBot successfully, you will need the following:
 
 * Java Development Kit (JDK) version 1.5 or better (1.4 or lower may work, but has not been tested)
-* PircBotX IRC framework libraries (http://code.google.com/p/pircbotx/)
-* MySQL Connector/J and a MySQL database (http://dev.mysql.com/downloads/connector/j/)
-* Apache Commons Lang library (http://commons.apache.org/lang/)
-* Twitter4j library (http://twitter4j.org/en/index.html)
-* JSON.org Java libraries (http://json.org/java/)
+* PircBotX IRC framework libraries (http://code.google.com/p/pircbotx/) (version 1.7)
+* MySQL Connector/J and a MySQL database (http://dev.mysql.com/downloads/connector/j/) (Connector/J version 5.1.22)
+* Apache Commons Lang library (http://commons.apache.org/lang/) (version 3.1)
+* Twitter4j library (http://twitter4j.org/en/index.html) (version 3.0.2)
+* JSON.org Java libraries (http://json.org/java/) (version 20090211)
+
+*(Library versions are determined in the Maven build script. To use newer versions, you may modify the versions as necessary and then rebuild the project.)*
 
 Building
 --------
