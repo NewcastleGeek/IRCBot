@@ -222,7 +222,7 @@ public class URLGrabber implements Runnable {
             RedditLink link = new RedditLink();
             RedditLink bestSubmission = link.checkImgurLink(appendURL);
             if(bestSubmission != null) {
-                String formattedString = "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + Colors.BOLD + bestSubmission.getTitle() + Colors.NORMAL + " (submitted by " + bestSubmission.getAuthor() + " to r/" + bestSubmission.getSubreddit() + " about " + bestSubmission.getCreatedReadableUTC() + " ago, " + bestSubmission.getScore() + " points: http://redd.it/" + bestSubmission.getId() + ")";
+                String formattedString = "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + Colors.BOLD + bestSubmission.getTitle() + Colors.NORMAL + " (submitted by " + bestSubmission.getAuthor() + " to /r/" + bestSubmission.getSubreddit() + " about " + bestSubmission.getCreatedReadableUTC() + " ago, " + bestSubmission.getScore() + " points: http://redd.it/" + bestSubmission.getId() + ")";
                 if(bestSubmission.isOver18()) {
                     formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFW]");
                 }
@@ -349,7 +349,7 @@ public class URLGrabber implements Runnable {
             } else if(type == RedditTypes.URL) {
                 appendURL = new URL(redditURL.toString() + "/.json");
                 RedditLink link = RedditLink.getLink(appendURL);
-                String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (submitted by " + link.getAuthor() + " to r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)";
+                String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (submitted by " + link.getAuthor() + " to /r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)";
                 if(link.isOver18()) {
                     formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFW]");
                 }
