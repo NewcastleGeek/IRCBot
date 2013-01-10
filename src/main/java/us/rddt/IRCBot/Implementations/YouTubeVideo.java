@@ -54,6 +54,7 @@ public class YouTubeVideo {
     private String title;
     private String uploader;
     private long duration;
+    private String url;
 
     /**
      * Class constructor
@@ -64,12 +65,27 @@ public class YouTubeVideo {
     /**
      * Class constructor
      * @param title the video's title
+     * @param uploader the video's uploader
      * @param duration the video's duration
      */
     public YouTubeVideo(String title, String uploader, long duration) {
         this.title = title;
         this.uploader = uploader;
         this.duration = duration;
+    }
+    
+    /**
+     * Class constructor
+     * @param title the video's title
+     * @param uploader the video's uploader
+     * @param duration the video's duration
+     * @param url the URL of the video
+     */
+    public YouTubeVideo(String title, String uploader, long duration, String url) {
+        this.title = title;
+        this.uploader = uploader;
+        this.duration = duration;
+        this.url = url;
     }
 
     /**
@@ -139,6 +155,14 @@ public class YouTubeVideo {
      */
     public long getDuration() {
         return duration;
+    }
+    
+    /**
+     * Returns the video's URL
+     * @return the video's URL
+     */
+    public String getUrl() {
+        return url;
     }
 
     /**
