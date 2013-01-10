@@ -51,6 +51,7 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 import us.rddt.IRCBot.Implementations.DatabaseCleaner;
 import us.rddt.IRCBot.Implementations.RedditWatcher;
+import us.rddt.IRCBot.Implementations.YouTubeWatcher;
 import us.rddt.IRCBot.Logging.IRCLogger;
 
 /**
@@ -83,6 +84,7 @@ public class Configuration {
     private static String main_channel;
 
     private static String[] watchSubreddits;
+    private static String[] watchYouTubers;
 
     private static int votekickDuration;
     private static int votekickPassPercent;
@@ -99,7 +101,9 @@ public class Configuration {
 
     private static String sqlite_database;
 
-    private static ScheduledExecutorService scheduler;
+    private static ScheduledExecutorService watchScheduler;
+    private static ScheduledExecutorService cleanupScheduler;
+    private static ScheduledExecutorService youtubeScheduler;
 
     private static IRCLogger logger;
     private static String log_output;
@@ -136,6 +140,7 @@ public class Configuration {
         disabled_functions = new ArrayList<String>(Arrays.asList(config.getProperty("disabled_functions").split(",")));
         main_channel = config.getProperty("main_channel");
         watchSubreddits = config.getProperty("watch_subreddits").split(",");
+        watchYouTubers = config.getProperty("watch_youtubers").split(",");
         votekickDuration = Integer.parseInt(config.getProperty("votekick_duration"));
         votekickPassPercent = Integer.parseInt(config.getProperty("votekick_pass_percent"));
         admin_nick = config.getProperty("admin_nick");
@@ -163,20 +168,34 @@ public class Configuration {
      * @param bot the IRC bot
      */
     public static void startScheduler(PircBotX bot) {
-        if(watchSubreddits.length > 0 && !watchSubreddits[0].equals("") && !disabled_functions.contains("watcher")) {
-            if(scheduler != null) {
+        if(watchSubreddits.length > 0 && !watchSubreddits[0].equals("") && !disabled_functions.contains("watcher_reddit")) {
+            if(watchScheduler != null) {
                 Configuration.getLogger().write(Level.INFO, "Shutting down existing subreddit updates");
-                scheduler.shutdownNow();
+                watchScheduler.shutdownNow();
             }
-            scheduler = Executors.newScheduledThreadPool(watchSubreddits.length + 1);
+            watchScheduler = Executors.newScheduledThreadPool(watchSubreddits.length + 1);
             for(int i = 0; i < watchSubreddits.length; i++) {
                 String[] configuration = watchSubreddits[i].split(":");
                 String subreddit = configuration[0];
                 int frequency = Integer.parseInt(configuration[1]);
                 Configuration.getLogger().write(Level.INFO, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
-                scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
+                watchScheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
             }
-            scheduler.scheduleWithFixedDelay(new DatabaseCleaner(), 1, 12, TimeUnit.HOURS);
+        }
+        if(!disabled_functions.contains("dbcleanup")) {
+            cleanupScheduler = Executors.newScheduledThreadPool(1);
+            cleanupScheduler.scheduleWithFixedDelay(new DatabaseCleaner(), 1, 12, TimeUnit.HOURS);
+        }
+        if(watchYouTubers.length > 0 && !watchYouTubers[0].equals("") && !disabled_functions.contains("watcher_youtube")) {
+            if(youtubeScheduler != null) {
+                Configuration.getLogger().write(Level.INFO, "Shutting down existing YouTube updates");
+                youtubeScheduler.shutdownNow();
+            }
+            youtubeScheduler = Executors.newScheduledThreadPool(watchYouTubers.length + 1);
+            for(int i = 0; i < watchYouTubers.length; i++) {
+                Configuration.getLogger().write(Level.INFO, "Scheduling YouTube updates for user " + watchYouTubers[i] + ".");
+                youtubeScheduler.scheduleWithFixedDelay(new YouTubeWatcher(bot, watchYouTubers[i]), 1, 5, TimeUnit.MINUTES);
+            }
         }
     }
 

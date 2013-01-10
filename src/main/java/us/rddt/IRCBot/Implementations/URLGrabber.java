@@ -404,7 +404,7 @@ public class URLGrabber implements Runnable {
         // Construct the URL to read the JSON data from
         try {
             appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
-            YouTubeLink link = YouTubeLink.getLink(appendURL);
+            YouTubeVideo link = YouTubeVideo.getLink(appendURL);
             event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (uploaded by " + link.getUploader() + ", " + link.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {

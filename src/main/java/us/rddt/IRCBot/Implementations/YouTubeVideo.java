@@ -47,7 +47,7 @@ import us.rddt.IRCBot.IRCUtils;
  * @see us.rddt.IRCBot.Implementations.URLGrabber
  * @author Ryan Morrison
  */
-public class YouTubeLink {
+public class YouTubeVideo {
     /*
      * Variables
      */
@@ -58,7 +58,7 @@ public class YouTubeLink {
     /**
      * Class constructor
      */
-    public YouTubeLink() {
+    public YouTubeVideo() {
     }
     
     /**
@@ -66,7 +66,7 @@ public class YouTubeLink {
      * @param title the video's title
      * @param duration the video's duration
      */
-    public YouTubeLink(String title, String uploader, long duration) {
+    public YouTubeVideo(String title, String uploader, long duration) {
         this.title = title;
         this.uploader = uploader;
         this.duration = duration;
@@ -79,7 +79,7 @@ public class YouTubeLink {
      * @throws IOException if the download fails
      * @throws JSONException if the JSON cannot be parsed
      */
-    public static YouTubeLink getLink(URL link) throws IOException, JSONException {
+    public static YouTubeVideo getLink(URL link) throws IOException, JSONException {
         /*
          * Variables
          */
@@ -111,7 +111,7 @@ public class YouTubeLink {
         JSONObject parsedArray = new JSONObject(jsonToParse.toString());
         if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
             JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
-            return new YouTubeLink(IRCUtils.escapeHTMLEntities(youtubeLink.getString("title")), youtubeLink.getString("uploader"), youtubeLink.getLong("duration"));
+            return new YouTubeVideo(IRCUtils.escapeHTMLEntities(youtubeLink.getString("title")), youtubeLink.getString("uploader"), youtubeLink.getLong("duration"));
         } else {
             throw new NoSuchElementException("YouTube video ID invalid or video is private.");
         }
