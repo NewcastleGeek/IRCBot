@@ -58,8 +58,7 @@ public class YouTubeWatcher implements Runnable {
          * Get the latest upload by the user.
          */
         JSONObject latestUpload = new JSONObject(jsonToParse.toString()).getJSONObject("feed").getJSONArray("entry").getJSONObject(0);
-        System.out.println(latestUpload.getJSONObject("title").getString("$t"));
-        updateChannels(new YouTubeVideo(latestUpload.getJSONObject("title").getString("$t"), latestUpload.getJSONArray("author").getJSONObject(0).getJSONObject("name").getString("$t"), latestUpload.getJSONObject("media$group").getJSONObject("yt$duration").getLong("seconds")));
+        
         if(!youtubeMap.containsKey(user)) {
             youtubeMap.put(user, latestUpload.getJSONObject("id").getString("$t"));
         } else if(!youtubeMap.get(user).equals(latestUpload.getJSONObject("id").getString("$t"))) {
