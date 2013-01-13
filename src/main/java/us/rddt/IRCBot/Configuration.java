@@ -193,8 +193,8 @@ public class Configuration {
             }
             youtubeScheduler = Executors.newScheduledThreadPool(watchYouTubers.length + 1);
             for(int i = 0; i < watchYouTubers.length; i++) {
-                Configuration.getLogger().write(Level.INFO, "Scheduling YouTube updates for user " + watchYouTubers[i] + ".");
-                youtubeScheduler.scheduleWithFixedDelay(new YouTubeWatcher(bot, watchYouTubers[i]), 1, 5, TimeUnit.MINUTES);
+                Configuration.getLogger().write(Level.INFO, "Scheduling YouTube updates for user " + watchYouTubers[i] + " starting in " + (2 * i) + " minutes.");
+                youtubeScheduler.scheduleWithFixedDelay(new YouTubeWatcher(bot, watchYouTubers[i]), (2 * i), 5, TimeUnit.MINUTES);
             }
         }
     }
