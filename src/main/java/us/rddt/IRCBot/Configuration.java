@@ -183,6 +183,9 @@ public class Configuration {
             }
         }
         if(!disabled_functions.contains("dbcleanup")) {
+            if(cleanupScheduler != null) {
+                cleanupScheduler.shutdownNow();
+            }
             cleanupScheduler = Executors.newScheduledThreadPool(1);
             cleanupScheduler.scheduleWithFixedDelay(new DatabaseCleaner(), 1, 12, TimeUnit.HOURS);
         }
