@@ -1,6 +1,6 @@
 /*
- * user file is part of IRCBot.
- * Copyright (c) 2011 Ryan Morrison
+ * This file is part of IRCBot.
+ * Copyright (c) 2011-2013 Ryan Morrison
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 
