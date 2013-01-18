@@ -1,13 +1,10 @@
-IRCBot
-======
+# IRCBot
 
-Description
------------
+## Description
 
 IRCBot is a custom IRC bot written in Java to support the RDDT IRC Network.
 
-Prerequisites
--------------
+## Prerequisites
 
 In order to build and use IRCBot successfully, you will need the following:
 
@@ -20,97 +17,16 @@ In order to build and use IRCBot successfully, you will need the following:
 
 *(Library versions are determined in the Maven build script. To use newer versions, you may modify the versions as necessary and then rebuild the project.)*
 
-Building
---------
+## Building
 
 To build IRCBot, import the Java source files and libraries into an IDE of your choice, or use the provided Maven build script to automatically build and package IRCBot.
 
-Usage
------
+## Usage
 
 1. Edit 'IRCBot.properties' to match your configuration.
 2. Use the provided SQL file to prepare the tables required by IRCBot.
 3. Execute the JAR package from a command line.
 
-Features
---------
+## Contributing
 
-### Automatic URL scraping
-
-IRCBot is capable of detecting URLs in messages sent to IRC channels. Upon detection of URLs, it automatically downloads the first 8192 bytes of the URL and parses it for the HTML title element, which it helpfully sends to the channel. If the link is not an HTML document, it returns the content type and content length properties instead.
-
-> 23:00 <~got_milk> http://www.reddit.com
->
-> 23:00 <&BOT> [URL by 'got_milk'] reddit: the front page of the internet
->
-> 22:42 <+burr> http://i.imgur.com/nMVYX.png
->
-> 22:42 <&BOT> [URL by 'burr'] Type: image/png, length: 337.9 kB
-
-IRCBot is also capable of deciphering Twitter statuses, reddit links and user pages, and YouTube videos.
-
-> 20:33 <~got_milk> https://twitter.com/#!/teamhacksung/status/141885395611815936
-
-> 20:33 <&BOT> [Tweet by 'got_milk'] @teamhacksung: [samsung-kernel-aries] http://t.co/nt1Q3KCz Pawit Pornkitprasan - Backport (read: copied) net/wireless and drivers/net/wireless from 3.0....
-
-### Fortune commands
-
-Users are able to 'ask' IRCBot to make decisions for them (chosen purely randomly by the bot). The bot will respond in accordance to the decision given.
-
-> 23:10 <~got_milk> !decide herp or derp
-
-> 23:10 <&BOT> got_milk: herp
-
-> 23:15 <~got_milk> !decide should I herp?
-
-> 23:15 <&BOT> got_milk: No
-
-### Shout mechanism
-
-If a user shouts in a channel (uppercase text greater than 5 characters) IRCBot will take notice and store the "quote" in a database, while selecting a quote at random to shout back at the user. Users are able to query the bot which can provide the quote submitter and when the quote was added to the database.
-
-> 23:15 <+PhreeWilly> THE ONE AND ONLY!
-
-> 23:15 <&actnotok> OHISHOULDHAVEYELLEDMORESORRY
-
-> 23:17 <~got_milk> !who last
-
-> 23:17 <&actnotok> got_milk: Sunoiki shouted "OHISHOULDHAVEYEL..." about 4 hours ago.
-
-### Seen command
-
-Users can use the !seen command to find out when the last time a user was in the channel.
-
-> 20:44 <~got_milk> !seen BOT
-
-> 20:44 <&BOT> got_milk: I don't think that command means what you think it means.
-
-### Anope-style shorthand op fantasy commands
-
-IRCBot accurately mimics the shorthand kick and ban functions that Anope's BotServ provides. Ops can choose to kick/ban users with or without reasoning.
-
-> 20:44 <~got_milk> .k CrazyAl90 need this for documentation, thanks :)
-
-> 20:44 -!- CrazyAl90 was kicked from #rddt by BOT [need this for documentation, thanks :) (got_milk)]
-
-### Calculator and Google-powered conversions
-
-Users can use the IRCBot to evaluate basic mathematical expressions. IRCBot supports adhering to the order of operations and correctly handles operator precedence.
-
-> 21:08 <~got_milk> !calc (4 * 2)^2
-
-> 21:08 < BOT> got_milk: 64.0
-
-IRCBot is also capable of performing conversions, backed by Google.
-
-> 21:10 <~got_milk> !convert 125CAD to USD
-
-> 21:10 < BOT> got_milk: 125 Canadian dollars is 126.05875 U.S. dollars
-
-### Steam user querying
-
-IRCBot can query Steam users to return their status.
-
-> 20:11 <!got_milk> !steam cwjoe
-
-> 20:11 < BOT> got_milk: Jeo is online, currently in-game: Borderlands 2
+Contributions to the project are welcomed. You may submit a pull request to be reviewed and merged, however, the commits you add to a pull request must **never** break the current build! Pull requests that do break the build will immediately be rejected until another commit is added to fix the issue(s).
