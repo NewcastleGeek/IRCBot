@@ -70,8 +70,17 @@ public class IRCUtils {
      * @return the formatted cipher suite to display to the user
      */
     public static String getReadableCipherSuite(String cipherSuite) {
-        String[] split = cipherSuite.split("_");
-        return split[0] + " " + split[split.length - 2] + "-bit";
+        StringBuilder readableSuite = new StringBuilder();
+        // The first element in a split cipher string always defines a TLS or SSL connection
+        readableSuite.append(cipherSuite.split("_")[0] + " ");
+        // Determine the bit strength
+        if(cipherSuite.contains("NULL")) readableSuite.append("0-bit null cipher");
+        if(cipherSuite.contains("40")) readableSuite.append("40-bit");
+        if(cipherSuite.contains("128")) readableSuite.append("128-bit");
+        if(cipherSuite.contains("3DES")) readableSuite.append("162-bit");
+        if(cipherSuite.contains("256")) readableSuite.append("256-bit");
+        // Return our nicely formatted string
+        return readableSuite.toString();
     }
     
     /**
