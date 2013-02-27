@@ -49,6 +49,18 @@ public class Fortune implements Runnable {
     public Fortune(MessageEvent<PircBotX> event) {
         this.event = event;
     }
+    
+    /**
+     * Returns whether the contents of a string array are all equal.
+     * @param values the values to compare
+     * @return true if they are equal, false if they are not
+     */
+    private boolean isAllEqual(String[] values) {
+        for(int i = 0; i < values.length; i++) {
+            if(!values[i].equals(values[0])) return false;
+        }
+        return true;
+    }
 
     /**
      * Parses and returns an appropriate fortune
@@ -58,8 +70,8 @@ public class Fortune implements Runnable {
     private String parseFortune(String message) {
         // Split the message with the delimiter 'or'
         String[] splitMessage = message.split("\\s+or\\s+");
-        // If the length of the new array is 1, we assume the user only wants a Yes/No response
-        if(splitMessage.length == 1) {
+        // If the length of the new array is 1 or the options are the same, we assume the user only wants a Yes/No response
+        if(splitMessage.length == 1 || isAllEqual(splitMessage)) {
             // Generate a random number and use it to return the fortune
             Random generator = new Random();
             if(generator.nextInt(2) == 1) return "Yes";
