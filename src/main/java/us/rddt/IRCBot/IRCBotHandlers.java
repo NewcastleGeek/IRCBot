@@ -56,6 +56,7 @@ import us.rddt.IRCBot.Handlers.Convert;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
 import us.rddt.IRCBot.Handlers.GameStatus;
+import us.rddt.IRCBot.Handlers.Help;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
@@ -441,7 +442,10 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @param event the PrivateMessageEvent to parse
      */
     public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) {
-        if(isUserAdmin(event.getUser())) {
+        if(event.getMessage().startsWith("help")) {
+            new Thread(new Help(event)).start();
+        }
+        else if(isUserAdmin(event.getUser())) {
             if(event.getMessage().startsWith("announce ")) {
                 sendAnnouncement(event.getBot(), false, event.getMessage());
                 return;
