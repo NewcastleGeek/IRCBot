@@ -113,7 +113,16 @@ public class Define implements Runnable {
          * Return the result to the user based upon whether the lookup was successful or not.
          */
         if(lookupResult.hasResult()) {
-            event.respond(lookupResult.getWord() + ": " + lookupResult.getDefinition() + " (Example: " + lookupResult.getExample() + ")");
+            /*
+             * Don't display the result if the combined total of the definition and example is greater than 950 characters.
+             * This prevents channel floods and server disconnections for excess flood.
+             * Definitions printed to the channel shouldn't take up more than two messages.
+             */
+            if(lookupResult.getDefinition().length() + lookupResult.getExample().length() > 950) {
+                event.respond("The definition for '" + lookupResult.getWord() + "' is too long to display in an IRC message. To view the definition online, follow this link: http://www.urbandictionary.com/define.php?term=" + lookupResult.getWord());
+            } else {
+                event.respond(lookupResult.getWord() + ": " + lookupResult.getDefinition() + " (Example: " + lookupResult.getExample() + ")");
+            }
         } else {
             event.respond("The definition for " + toDefine + " does not exist.");
         }
