@@ -73,8 +73,7 @@ public class Fortune implements Runnable {
         // If the length of the new array is 1 or the options are the same, we assume the user only wants a Yes/No response
         if(splitMessage.length == 1 || isAllEqual(splitMessage)) {
             // Generate a random number and use it to return the fortune
-            Random generator = new Random();
-            if(generator.nextInt(2) == 1) return "Yes";
+            if(Math.random() >= 0.5) return "Yes";
             else return "No";
         } else {
             // Generate a random number and use it to return a decision
