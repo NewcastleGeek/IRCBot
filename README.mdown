@@ -1,5 +1,7 @@
 # IRCBot
 
+[![Build Status](https://travis-ci.org/GotMilk/IRCBot.png)](https://travis-ci.org/GotMilk/IRCBot)
+
 ## Description
 
 IRCBot is a custom IRC bot written in Java to support the RDDT IRC Network.
