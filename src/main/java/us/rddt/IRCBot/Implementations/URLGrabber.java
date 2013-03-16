@@ -319,9 +319,18 @@ public class URLGrabber implements Runnable {
                 event.getBot().sendMessage(event.getChannel(), formattedString);
                 return;
             } else if(type == RedditTypes.URL) {
-                appendURL = new URL(redditURL.toString() + "/.json");
-                RedditLink link = RedditLink.getLink(appendURL);
-                String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (submitted by " + link.getAuthor() + " to /r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)";
+            	RedditLink link;
+            	int contextIndex = redditURL.toString().lastIndexOf('?');
+            	if(contextIndex == -1) {
+            		appendURL = new URL(redditURL.toString() + "/.json");
+            		link = RedditLink.getLink(appendURL, false);
+            	} else {
+            		appendURL = new URL(new StringBuffer(redditURL.toString()).insert(contextIndex, "/.json").toString());
+            		link = RedditLink.getLink(appendURL, true);
+            	}
+                String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] ";
+                if(contextIndex != -1) formattedString += link.getContextUsername() + " comments on ";
+                formattedString += Colors.BOLD + link.getTitle() + Colors.NORMAL + " (submitted by " + link.getAuthor() + " to /r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)";
                 if(link.isOver18()) {
                     formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFW]");
                 }

@@ -36,6 +36,7 @@ public class RedditLink {
     private int score;
     private boolean over_18;
     private boolean is_nsfl;
+    private String context_username;
 
     /**
      * Class constructor
@@ -63,6 +64,28 @@ public class RedditLink {
         this.over_18 = over_18;
         this.is_nsfl = is_nsfl;
     }
+    
+    /**
+     * Class constructor
+     * @param id the reddit submission's ID
+     * @param title the reddit submission's title
+     * @param author the reddit submission's author
+     * @param subreddit the reddit submission's subreddit
+     * @param created_utc the reddit submission's creation date in UTC
+     * @param score the reddit submission's current score
+     * @param over_18 is the reddit submission marked as NSFW
+     */
+    public RedditLink(String id, String title, String author, String subreddit, long created_utc, int score, boolean over_18, boolean is_nsfl, String context_username) {
+        this.id = id;
+        this.title = title;
+        this.author = author;
+        this.subreddit = subreddit;
+        this.created_utc = created_utc;
+        this.score = score;
+        this.over_18 = over_18;
+        this.is_nsfl = is_nsfl;
+        this.context_username = context_username;
+    }
 
     /**
      * Gets the content of a provided Reddit URL
@@ -70,7 +93,7 @@ public class RedditLink {
      * @throws IOException if the download fails
      * @throws JSONException if the JSON cannot be parsed
      */
-    public static RedditLink getLink(URL link) throws IOException, JSONException {
+    public static RedditLink getLink(URL link, boolean isContext) throws IOException, JSONException {
         /*
          * Variables.
          */
@@ -101,14 +124,27 @@ public class RedditLink {
          */
         JSONArray parsedArray = new JSONArray(jsonToParse.toString());
         JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
-        return new RedditLink(redditLink.getString("id"),
-                IRCUtils.escapeHTMLEntities(redditLink.getString("title")),
-                redditLink.getString("author"),
-                redditLink.getString("subreddit"),
-                redditLink.getLong("created_utc"),
-                redditLink.getInt("score"),
-                redditLink.getBoolean("over_18"),
-                redditLink.getString("title").toUpperCase().contains("NSFL"));
+        if(isContext) {
+        	JSONObject redditContext = parsedArray.getJSONObject(1).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
+        	return new RedditLink(redditLink.getString("id"),
+                    IRCUtils.escapeHTMLEntities(redditLink.getString("title")),
+                    redditLink.getString("author"),
+                    redditLink.getString("subreddit"),
+                    redditLink.getLong("created_utc"),
+                    redditLink.getInt("score"),
+                    redditLink.getBoolean("over_18"),
+                    redditLink.getString("title").toUpperCase().contains("NSFL"),
+                    redditContext.getString("author"));
+        } else {
+        	return new RedditLink(redditLink.getString("id"),
+        			IRCUtils.escapeHTMLEntities(redditLink.getString("title")),
+        			redditLink.getString("author"),
+        			redditLink.getString("subreddit"),
+        			redditLink.getLong("created_utc"),
+        			redditLink.getInt("score"),
+        			redditLink.getBoolean("over_18"),
+        			redditLink.getString("title").toUpperCase().contains("NSFL"));
+        }
     }
 
     /**
@@ -249,6 +285,14 @@ public class RedditLink {
      */
     public int getScore() {
         return score;
+    }
+    
+    /**
+     * Returns the username of the person who submitted the linked comment (if applicable)
+     * @return the username of the person who submitted the linked comment
+     */
+    public String getContextUsername() {
+    	return context_username;
     }
 
     /**
