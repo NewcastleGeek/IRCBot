@@ -31,17 +31,13 @@ package us.rddt.IRCBot;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import java.util.logging.Level;
 
 import org.pircbotx.PircBotX;
@@ -62,6 +58,13 @@ import us.rddt.IRCBot.Logging.IRCLogger;
  * @author Ryan Morrison
  */
 public class Configuration {
+	/*
+	 * Version information
+	 */
+	public static final int VERSION_MAJOR = 1;
+	public static final int VERSION_MINOR = 3;
+	public static final int VERSION_REVISION = 0;
+	
     /*
      * Class variables.
      */
@@ -207,18 +210,7 @@ public class Configuration {
      * @return the application version string
      */
     public static String getApplicationVersion() {
-        try {
-            Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources("META-INF/MANIFEST.MF");
-            while(resources.hasMoreElements()) {
-                Manifest manifest = new Manifest(((URL)resources.nextElement()).openStream());
-                Attributes mainAttribs = (Attributes)manifest.getMainAttributes();
-                if(mainAttribs.getValue("Build-Version") != null) return mainAttribs.getValue("Build-Version");
-            }
-            return null;
-        } catch (IOException ex) {
-            getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-            return null;
-        }
+        return VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_REVISION;
     }
 
     /**
