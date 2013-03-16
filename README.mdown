@@ -1,6 +1,6 @@
 # IRCBot
 
-[![Build Status](https://travis-ci.org/GotMilk/IRCBot.png)](https://travis-ci.org/GotMilk/IRCBot)
+[![Build Status](https://travis-ci.org/GotMilk/IRCBot.png?branch=master)](https://travis-ci.org/GotMilk/IRCBot)
 
 ## Description
 
