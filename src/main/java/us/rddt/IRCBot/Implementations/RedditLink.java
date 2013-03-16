@@ -74,6 +74,7 @@ public class RedditLink {
      * @param created_utc the reddit submission's creation date in UTC
      * @param score the reddit submission's current score
      * @param over_18 is the reddit submission marked as NSFW
+     * @param context_username the username of the comment submitter
      */
     public RedditLink(String id, String title, String author, String subreddit, long created_utc, int score, boolean over_18, boolean is_nsfl, String context_username) {
         this.id = id;
@@ -124,6 +125,7 @@ public class RedditLink {
          */
         JSONArray parsedArray = new JSONArray(jsonToParse.toString());
         JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
+        // If a URL contains a context parameter, also parse out the username of the comment's submitter
         if(isContext) {
         	JSONObject redditContext = parsedArray.getJSONObject(1).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
         	return new RedditLink(redditLink.getString("id"),

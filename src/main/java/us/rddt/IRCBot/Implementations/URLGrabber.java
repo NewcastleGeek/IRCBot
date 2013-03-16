@@ -320,14 +320,20 @@ public class URLGrabber implements Runnable {
                 return;
             } else if(type == RedditTypes.URL) {
             	RedditLink link;
+            	// If a ? appears in a reddit URL, the URL must contain a context parameter
+            	// This signals that we are being linked to a comment in a post with context
             	int contextIndex = redditURL.toString().lastIndexOf('?');
+            	// lastIndexOf returns -1 on characters not found, so build the API query URL normally
             	if(contextIndex == -1) {
             		appendURL = new URL(redditURL.toString() + "/.json");
             		link = RedditLink.getLink(appendURL, false);
-            	} else {
+            	}
+            	// We need to insert the '/.json' to query the API *before* the context parameter
+            	else {
             		appendURL = new URL(new StringBuffer(redditURL.toString()).insert(contextIndex, "/.json").toString());
             		link = RedditLink.getLink(appendURL, true);
             	}
+            	// Build the string to print to the channel, adding in comment details if necessary
                 String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] ";
                 if(contextIndex != -1) formattedString += link.getContextUsername() + " comments on ";
                 formattedString += Colors.BOLD + link.getTitle() + Colors.NORMAL + " (submitted by " + link.getAuthor() + " to /r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)";
