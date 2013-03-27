@@ -38,7 +38,7 @@ public class Define implements Runnable {
      */
     private String formatLookup(String[] phrase) throws ArrayIndexOutOfBoundsException {
         String temp = "";
-        for(int i = 1; i < phrase.length; i++) {
+        for(int i = 0; i < phrase.length; i++) {
             if(i == (phrase.length - 1)) temp += phrase[i];
             else temp += phrase[i] + "%20";
         }
@@ -55,23 +55,18 @@ public class Define implements Runnable {
          * Variables
          */
         UrbanLookup lookupResult = null;
-        String toDefine = null;
-        
-        /*
-         * Attempts to extract the phrase to define from the user's message
-         */
-        try {
-            toDefine = formatLookup(event.getMessage().split(" "));
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            return;
-        }
+        String toDefine = event.getMessage().substring(4);
         
         /*
          * Attempts to define the phrase via UrbanDictionary. If an exception occurs,
          * return a proper error message.
          */
         try {
-            lookupResult = UrbanLookup.getDefinition(toDefine);
+            lookupResult = UrbanLookup.getDefinition(formatLookup(toDefine.split(" ")));
+        } catch (ArrayIndexOutOfBoundsException ex) {
+        	Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
+            event.respond("Error while extracting definition: " + IRCUtils.trimString(event.getMessage(), 50));
+            return;
         } catch (IOException ex) {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             event.respond("Error while downloading definition: " + IRCUtils.trimString(event.getMessage(), 50));
