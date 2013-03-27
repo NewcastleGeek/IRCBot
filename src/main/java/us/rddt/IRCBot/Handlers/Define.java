@@ -65,15 +65,15 @@ public class Define implements Runnable {
             lookupResult = UrbanLookup.getDefinition(formatLookup(toDefine.split(" ")));
         } catch (ArrayIndexOutOfBoundsException ex) {
         	Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-            event.respond("Error while extracting definition: " + IRCUtils.trimString(event.getMessage(), 50));
+            event.respond("Error while extracting definition: " + IRCUtils.trimString(toDefine, 50));
             return;
         } catch (IOException ex) {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-            event.respond("Error while downloading definition: " + IRCUtils.trimString(event.getMessage(), 50));
+            event.respond("Error while downloading definition: " + IRCUtils.trimString(toDefine, 50));
             return;
         } catch (JSONException ex) {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-            event.respond("Error while parsing definition: " + IRCUtils.trimString(event.getMessage(), 50));
+            event.respond("Error while parsing definition: " + IRCUtils.trimString(toDefine, 50));
         }
         
         /*
