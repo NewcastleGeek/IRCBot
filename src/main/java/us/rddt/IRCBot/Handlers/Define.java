@@ -91,7 +91,7 @@ public class Define implements Runnable {
                 event.respond(lookupResult.getWord() + ": " + lookupResult.getDefinition() + " (Example: " + lookupResult.getExample() + ")");
             }
         } else {
-            event.respond("The definition for " + toDefine + " does not exist.");
+            event.respond("The definition for '" + toDefine + "' does not exist.");
         }
     }
 }
