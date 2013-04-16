@@ -122,7 +122,7 @@ public class Shouts implements Runnable {
         statement.setString(1, event.getUser().getNick());
         statement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
         statement.setString(3, event.getChannel().getName());
-        statement.setString(4, event.getMessage().trim());
+        statement.setString(4, Colors.removeFormattingAndColors(event.getMessage()).trim());
         statement.executeUpdate();
     }
     
@@ -133,7 +133,7 @@ public class Shouts implements Runnable {
      */
     private int deleteQuote(String quote) throws SQLException {
         PreparedStatement statement = database.getConnection().prepareStatement("UPDATE Quotes SET Deleted = '1' WHERE Quote = ? AND Channel = ? AND Deleted = '0'");
-        statement.setString(1, quote);
+        statement.setString(1, Colors.removeFormattingAndColors(quote));
         statement.setString(2, event.getChannel().getName());
         return statement.executeUpdate();
     }
@@ -146,7 +146,7 @@ public class Shouts implements Runnable {
     private boolean doesQuoteExist() throws SQLException {
         // Again, prepared statements to sanitize input
         PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Quote = ? AND Channel = ?");
-        statement.setString(1, event.getMessage());
+        statement.setString(1, Colors.removeFormattingAndColors(event.getMessage()));
         statement.setString(2, event.getChannel().getName());
         ResultSet resultSet = statement.executeQuery();
         if(resultSet.next()) {
@@ -190,7 +190,7 @@ public class Shouts implements Runnable {
     private String getQuoteInfo(String quote) throws SQLException {
         // You should know why by now.
         PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Quote = ? AND Channel = ? AND Deleted = '0'");
-        statement.setString(1, quote);
+        statement.setString(1, Colors.removeFormattingAndColors(quote));
         statement.setString(2, event.getChannel().getName());
         ResultSet resultSet = statement.executeQuery();
         if(resultSet.next()) {
@@ -344,7 +344,7 @@ public class Shouts implements Runnable {
      */
     private int permanentlyDeleteQuote(String quote) throws SQLException {
         PreparedStatement statement = database.getConnection().prepareStatement("DELETE FROM Quotes WHERE Quote = ? AND Channel = ?");
-        statement.setString(1, quote);
+        statement.setString(1, Colors.removeFormattingAndColors(quote));
         statement.setString(2, event.getChannel().getName());
         return statement.executeUpdate();
     }
@@ -356,7 +356,7 @@ public class Shouts implements Runnable {
      */
     private int undeleteQuote(String quote) throws SQLException {
         PreparedStatement statement = database.getConnection().prepareStatement("UPDATE Quotes SET Deleted = '0' WHERE Quote = ? AND Channel = ?");
-        statement.setString(1, quote);
+        statement.setString(1, Colors.removeFormattingAndColors(quote));
         statement.setString(2, event.getChannel().getName());
         return statement.executeUpdate();
     }
