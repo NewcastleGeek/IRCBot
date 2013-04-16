@@ -237,7 +237,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 }
             }
             if(event.getMessage().substring(1).equals("leave")) {
-                if(isUserOwner(event.getUser(), event.getChannel())) {
+                if(isUserOperator(event.getUser(), event.getChannel())) {
                     event.getBot().partChannel(event.getChannel());
                     return true;
                 }
@@ -496,16 +496,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
     private boolean isUserOperator(User user, Channel channel) {
         if(channel.isOp(user) || channel.isSuperOp(user) || channel.isOwner(user)) return true;
         else return false;
-    }
-    
-    /**
-     * Checks to see if a user is a channel owner
-     * @param user the user to check
-     * @param channel the channel to check against
-     * @return true if the user is a channel owner, false if they are not
-     */
-    private boolean isUserOwner(User user, Channel channel) {
-        return channel.isOwner(user);
     }
 
     /**
