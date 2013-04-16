@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.pircbotx.Channel;
+import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -367,8 +368,10 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @throws Exception
      */
     public void onMessage(MessageEvent<PircBotX> event) throws Exception {
+    	// Strip control codes to prevent erroneous shout triggering
+    	String strippedMessage = Colors.removeFormattingAndColors(event.getMessage());
         // If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
-        if(isUpperCase(event.getMessage()) && event.getMessage().replaceAll("^\\s+", "").replaceAll("\\s+$", "").length() > 5 && event.getUser() != event.getBot().getUserBot()) {
+        if(isUpperCase(strippedMessage) && strippedMessage.replaceAll("^\\s+", "").replaceAll("\\s+$", "").length() > 5 && event.getUser() != event.getBot().getUserBot()) {
             new Thread(new Shouts(event, Shouts.ShoutEvents.RANDOM_SHOUT)).start();
             return;
         }
