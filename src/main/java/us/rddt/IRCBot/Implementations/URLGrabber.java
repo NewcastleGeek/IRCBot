@@ -261,7 +261,7 @@ public class URLGrabber implements Runnable {
         
         // If the document isn't HTML, return the Content-Type and Content-Length instead
         if(!contentType.contentType.equals("text/html")) {
-            return builder.append("Type: " + contentType.contentType + ", length: " + humanReadableByteCount(getContentLengthHeader(conn), true)).toString();
+            return builder.append("Type: " + contentType.contentType + ", size: " + humanReadableByteCount(getContentLengthHeader(conn), true)).toString();
         }
         else {
             // Get the character set or use the default accordingly
