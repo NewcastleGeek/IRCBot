@@ -111,7 +111,7 @@ public class URLGrabber implements Runnable {
      * @param conn the open HTTP connection to read the headers from
      * @return the length of the data stream
      */
-    private static int getContentLengthHeader(HttpURLConnection conn) {
+    private static long getContentLengthHeader(HttpURLConnection conn) {
         // Variables
         int i = 0;
         boolean moreHeaders = true;
@@ -121,7 +121,7 @@ public class URLGrabber implements Runnable {
             String headerName = conn.getHeaderFieldKey(i);
             String headerValue = conn.getHeaderField(i);
             if (headerName != null && headerName.equals("Content-Length"))
-                return Integer.parseInt(headerValue);
+                return Long.parseLong(headerValue);
             i++;
             moreHeaders = headerName != null || headerValue != null;
         }
