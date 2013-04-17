@@ -259,6 +259,10 @@ public class URLGrabber implements Runnable {
             builder.append(Colors.BOLD + Colors.GREEN + "[" + IRCUtils.getReadableCipherSuite(((HttpsURLConnection) conn).getCipherSuite()) + "]" + Colors.NORMAL + " ");
         }
         
+        // Ensure the server did provide us with proper HTTP headers
+        if(contentType == null) {
+        	return builder.append("The server did not provide correct HTTP headers. Unable to determine Content-Type property.").toString();
+        }
         // If the document isn't HTML, return the Content-Type and Content-Length instead
         if(!contentType.contentType.equals("text/html")) {
             return builder.append("Type: " + contentType.contentType + ", size: " + humanReadableByteCount(getContentLengthHeader(conn), true)).toString();
