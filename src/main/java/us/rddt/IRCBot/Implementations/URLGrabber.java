@@ -415,7 +415,7 @@ public class URLGrabber implements Runnable {
     private void returnVimeoVideo(URL vimeoURL) {
         // Construct the URL to read the JSON data from
         try {
-        	VimeoVideo video = (VimeoVideo) VimeoVideo.downloadMetadata(new URL("http://vimeo.com/api/v2/video/" + url.toString().substring(url.toString().lastIndexOf("/") + 1) + ".json"), VimeoVideo.class);
+        	VimeoVideo video = ((VimeoVideo[]) VimeoVideo.downloadMetadata(new URL("http://vimeo.com/api/v2/video/" + url.toString().substring(url.toString().lastIndexOf("/") + 1) + ".json"), VimeoVideo[].class))[0];
             event.getBot().sendMessage(event.getChannel(), "[Vimeo by '" + event.getUser().getNick() + "'] " + Colors.BOLD + video.getTitle() + Colors.NORMAL + " (uploaded by " + video.getUsername() + ", " + video.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {
