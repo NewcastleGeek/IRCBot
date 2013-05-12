@@ -1,22 +1,16 @@
 package us.rddt.IRCBot.Services.Vimeo;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.Services.General.Downloadable;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Class to deserialize a Vimeo video object to.
@@ -49,7 +43,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 	"tags",
 	"embed_privacy"
 })
-public class Video {
+public class VimeoVideo extends Downloadable {
 
 	@JsonProperty("id")
 	private Integer id;
@@ -100,45 +94,6 @@ public class Video {
 	@JsonProperty("embed_privacy")
 	private String embed_privacy;
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-	
-	/**
-     * Gets information about a provided link to a Vimeo video
-     * @return a new instance of the class with the video's details
-     * @param link the link to the user page
-     * @throws IOException if the download fails
-     */
-    public static Video getVideoProperties(String id) throws IOException {
-        /*
-         * Variables
-         */
-        StringBuilder jsonToParse = new StringBuilder();
-        String buffer;
-        URL apiUrl = new URL("http://vimeo.com/api/v2/video/" + id + ".json");
-
-        /*
-         * Opens a connection to the provided URL, and downloads the data into a temporary variable.
-         */
-        HttpURLConnection conn = (HttpURLConnection)apiUrl.openConnection();
-        conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
-        if(conn.getResponseCode() >= 400) {
-            throw new IOException("Server returned response code: " + conn.getResponseCode());
-        }
-
-        BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        while((buffer = buf.readLine()) != null) {
-            jsonToParse.append(buffer);
-        }
-
-        /*
-         * Disconnect from the server.
-         */
-        conn.disconnect();
-        
-        ObjectMapper mapper = new ObjectMapper();
-        Video video = mapper.readValue(jsonToParse.toString(), Video.class);
-        System.out.println(video.getTitle());
-        return video;
-    }
 
 	@JsonProperty("id")
 	public Integer getId() {

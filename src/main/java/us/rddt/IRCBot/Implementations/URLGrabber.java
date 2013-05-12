@@ -29,7 +29,9 @@ import twitter4j.TwitterException;
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Enums.RedditTypes;
+import us.rddt.IRCBot.Services.Vimeo.VimeoVideo;
 import us.rddt.IRCBot.Services.YouTube.Video.Item;
+import us.rddt.IRCBot.Services.YouTube.Video.YouTubeVideo;
 
 /**
  * Detects and returns information for URLs the bot sees in a channel. For normal
@@ -393,7 +395,7 @@ public class URLGrabber implements Runnable {
     private void returnYouTubeVideo(URL youtubeURL) {
         // Construct the URL to read the JSON data from
         try {
-        	Item item = us.rddt.IRCBot.Services.YouTube.Video.Video.getVideoProperties(url.toString().split("=")[1]).getData().getItems().iterator().next();
+        	Item item = ((YouTubeVideo) YouTubeVideo.downloadMetadata(new URL("http://gdata.youtube.com/feeds/api/videos?q=" + youtubeURL.toString().split("=")[1] + "&v=2&alt=jsonc"), YouTubeVideo.class)).getData().getItems().iterator().next();
             event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + item.getTitle() + Colors.NORMAL + " (uploaded by " + item.getUploader() + ", " + item.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {
@@ -413,7 +415,7 @@ public class URLGrabber implements Runnable {
     private void returnVimeoVideo(URL vimeoURL) {
         // Construct the URL to read the JSON data from
         try {
-        	us.rddt.IRCBot.Services.Vimeo.Video video = us.rddt.IRCBot.Services.Vimeo.Video.getVideoProperties(url.toString().substring(url.toString().lastIndexOf("/") + 1));
+        	VimeoVideo video = (VimeoVideo) VimeoVideo.downloadMetadata(new URL("http://vimeo.com/api/v2/video/" + url.toString().substring(url.toString().lastIndexOf("/") + 1) + ".json"), VimeoVideo.class);
             event.getBot().sendMessage(event.getChannel(), "[Vimeo by '" + event.getUser().getNick() + "'] " + Colors.BOLD + video.getTitle() + Colors.NORMAL + " (uploaded by " + video.getUsername() + ", " + video.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {
