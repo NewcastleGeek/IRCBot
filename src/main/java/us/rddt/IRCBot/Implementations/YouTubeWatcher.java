@@ -10,12 +10,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.pircbotx.Channel;
 import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.Services.YouTube.Channel.Entry;
+import us.rddt.IRCBot.Services.YouTube.Channel.Upload;
 
 /**
  * Monitors a configured set of YouTube channels for newly uploaded videos.
@@ -78,17 +81,18 @@ public class YouTubeWatcher implements Runnable {
         /*
          * Get the latest upload by the user.
          */
-        JSONObject latestUpload = new JSONObject(jsonToParse.toString()).getJSONObject("feed").getJSONArray("entry").getJSONObject(0);
-        
+        ObjectMapper mapper = new ObjectMapper();
+        Entry latestUpload = mapper.readValue(jsonToParse.toString(), Upload.class).getFeed().getEntry().iterator().next();
+
         /*
          * Check to see if the ID is different from the one we stored.
          * If it is, the video is considered new and should be broadcasted.
          */
         if(!youtubeMap.containsKey(user)) {
-            youtubeMap.put(user, latestUpload.getJSONObject("id").getString("$t"));
-        } else if(!youtubeMap.get(user).equals(latestUpload.getJSONObject("id").getString("$t"))) {
-            youtubeMap.put(user, latestUpload.getJSONObject("id").getString("$t"));
-            updateChannel(new YouTubeVideo(latestUpload.getJSONObject("title").getString("$t"), latestUpload.getJSONArray("author").getJSONObject(0).getJSONObject("name").getString("$t"), latestUpload.getJSONObject("media$group").getJSONObject("yt$duration").getLong("seconds"), latestUpload.getJSONObject("id").getString("$t").split("http://gdata.youtube.com/feeds/api/videos/")[1]));
+        	youtubeMap.put(user, latestUpload.getId().getValue());
+        } else if(!youtubeMap.get(user).equals(latestUpload.getId().getValue())) {
+        	youtubeMap.put(user, latestUpload.getId().getValue());
+        	updateChannel(latestUpload);
         }
     }
     
@@ -96,12 +100,12 @@ public class YouTubeWatcher implements Runnable {
      * Updates the main channel with the new video's details.
      * @param video the YouTubeVideo object of the newly uploaded video
      */
-    private void updateChannel(YouTubeVideo video) {
+    private void updateChannel(Entry entry) {
         // Gets the channel to broadcast to
         Channel channelToBroadcast = bot.getChannel(Configuration.getMainChannel());
         // Don't bother trying to send the message if we're not joined to the main channel.
         if(bot.getChannels().contains(channelToBroadcast)) {
-            bot.sendMessage(channelToBroadcast, "[YouTube Upload] " + Colors.BOLD + video.getTitle() + Colors.NORMAL + " (uploaded by " + video.getUploader() + ", " + video.getReadableDuration() + ") (http://youtu.be/" + video.getUrl() + ")");
+            bot.sendMessage(channelToBroadcast, "[YouTube Upload] " + Colors.BOLD + entry.getTitle().getValue() + Colors.NORMAL + " (uploaded by " + entry.getAuthor().iterator().next().getName().getValue() + ", " + entry.getMediaGroup().getDuration().getSeconds() + ") (http://youtu.be/" + entry.getId().getValue().split("http://gdata.youtube.com/feeds/api/videos/")[1] + ")");
         }
     }
     
