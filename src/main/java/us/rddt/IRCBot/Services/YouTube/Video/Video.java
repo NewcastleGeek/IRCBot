@@ -8,8 +8,6 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONException;
-
 import us.rddt.IRCBot.Configuration;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -19,6 +17,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Class to deserialize a YouTube video object to.
+ * @author Ryan Morrison
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	"apiVersion",
@@ -32,7 +34,13 @@ public class Video {
 	private Data data;
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 	
-	public static Video getVideoProperties(String id) throws IOException, JSONException {
+	/**
+     * Gets information about a provided link to a YouTube video
+     * @return a new instance of the class with the video's details
+     * @param link the link to the user page
+     * @throws IOException if the download fails
+     */
+	public static Video getVideoProperties(String id) throws IOException {
         /*
          * Variables
          */

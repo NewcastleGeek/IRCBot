@@ -391,12 +391,8 @@ public class URLGrabber implements Runnable {
      * @param youtubeURL the URL to process
      */
     private void returnYouTubeVideo(URL youtubeURL) {
-        URL appendURL = null;
-
         // Construct the URL to read the JSON data from
         try {
-            //appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
-            //YouTubeVideo link = YouTubeVideo.getLink(appendURL);
         	Item item = us.rddt.IRCBot.Services.YouTube.Video.Video.getVideoProperties(url.toString().split("=")[1]).getData().getItems().iterator().next();
             event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + item.getTitle() + Colors.NORMAL + " (uploaded by " + item.getUploader() + ", " + item.getReadableDuration() + ")");
             return;

@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+/**
+ * Class to deserialize a YouTube channel object to.
+ * @author Ryan Morrison
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MediaKeywords {
 

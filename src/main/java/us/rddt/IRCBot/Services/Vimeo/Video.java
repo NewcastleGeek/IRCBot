@@ -18,6 +18,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Class to deserialize a Vimeo video object to.
+ * @author Ryan Morrison
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
 	"id",
@@ -102,7 +106,6 @@ public class Video {
      * @return a new instance of the class with the video's details
      * @param link the link to the user page
      * @throws IOException if the download fails
-     * @throws JSONException if the JSON cannot be parsed
      */
     public static Video getVideoProperties(String id) throws IOException {
         /*
@@ -133,6 +136,7 @@ public class Video {
         
         ObjectMapper mapper = new ObjectMapper();
         Video video = mapper.readValue(jsonToParse.toString(), Video.class);
+        System.out.println(video.getTitle());
         return video;
     }
 

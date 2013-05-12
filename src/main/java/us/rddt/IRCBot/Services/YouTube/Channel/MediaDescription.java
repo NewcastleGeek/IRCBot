@@ -1,4 +1,3 @@
-
 package us.rddt.IRCBot.Services.YouTube.Channel;
 
 import java.util.HashMap;
@@ -10,6 +9,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+/**
+ * Class to deserialize a YouTube channel object to.
+ * @author Ryan Morrison
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
