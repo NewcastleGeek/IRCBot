@@ -30,7 +30,6 @@ import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Enums.RedditTypes;
 import us.rddt.IRCBot.Services.YouTube.Video.Item;
-import us.rddt.IRCBot.Services.YouTube.Video.Video;
 
 /**
  * Detects and returns information for URLs the bot sees in a channel. For normal
@@ -398,7 +397,7 @@ public class URLGrabber implements Runnable {
         try {
             //appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
             //YouTubeVideo link = YouTubeVideo.getLink(appendURL);
-        	Item item = Video.getVideoProperties(url.toString().split("=")[1]).getData().getItems().iterator().next();
+        	Item item = us.rddt.IRCBot.Services.YouTube.Video.Video.getVideoProperties(url.toString().split("=")[1]).getData().getItems().iterator().next();
             event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + item.getTitle() + Colors.NORMAL + " (uploaded by " + item.getUploader() + ", " + item.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {
@@ -416,13 +415,10 @@ public class URLGrabber implements Runnable {
      * @param vimeoURL the URL to process
      */
     private void returnVimeoVideo(URL vimeoURL) {
-        URL appendURL = null;
-
         // Construct the URL to read the JSON data from
         try {
-            appendURL = new URL("http://vimeo.com/api/v2/video/" + url.toString().substring(url.toString().lastIndexOf("/") + 1) + ".json");
-            VimeoLink link = VimeoLink.getLink(appendURL);
-            event.getBot().sendMessage(event.getChannel(), "[Vimeo by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (uploaded by " + link.getUploader() + ", " + link.getReadableDuration() + ")");
+        	us.rddt.IRCBot.Services.Vimeo.Video video = us.rddt.IRCBot.Services.Vimeo.Video.getVideoProperties(url.toString().substring(url.toString().lastIndexOf("/") + 1));
+            event.getBot().sendMessage(event.getChannel(), "[Vimeo by '" + event.getUser().getNick() + "'] " + Colors.BOLD + video.getTitle() + Colors.NORMAL + " (uploaded by " + video.getUsername() + ", " + video.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
