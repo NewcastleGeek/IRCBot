@@ -218,9 +218,14 @@ public class URLGrabber implements Runnable {
      * Formats a friendly error message to return to a user if a lookup fails
      * @param site the website where the lookup failed
      * @param message the error message
+     * @param trim whether or not the error message should be trimmed
      */
-    private String formatError(String site, String message) {
-        return "[" + site + " by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + IRCUtils.trimString(message, 50) + ")";
+    private String formatError(String site, String message, boolean trim) {
+    	if(trim) {
+    		return "[" + site + " by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + IRCUtils.trimString(message, 50) + ")";
+    	} else {
+    		return "[" + site + " by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + message + ")";
+    	}
     }
 
     /**
@@ -363,7 +368,7 @@ public class URLGrabber implements Runnable {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         } catch (Exception ex) {
-            event.getBot().sendMessage(event.getChannel(), formatError("Reddit", ex.getMessage()));
+            event.getBot().sendMessage(event.getChannel(), formatError("Reddit", ex.getMessage(), true));
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         }
@@ -380,7 +385,7 @@ public class URLGrabber implements Runnable {
             Status status = twitter.showStatus(tweetID);
             event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] " + Colors.BOLD + "@" + status.getUser().getScreenName() + Colors.NORMAL + ": " + status.getText());
         } catch (TwitterException te) {
-            event.getBot().sendMessage(event.getChannel(), formatError("Twitter", te.getMessage()));
+            event.getBot().sendMessage(event.getChannel(), formatError("Twitter", te.getMessage(), true));
             Configuration.getLogger().write(Level.WARNING, te.getStackTrace().toString());
         }
     }
@@ -402,7 +407,7 @@ public class URLGrabber implements Runnable {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         } catch (Exception ex) {
-            event.getBot().sendMessage(event.getChannel(), formatError("YouTube", ex.getMessage()));
+            event.getBot().sendMessage(event.getChannel(), formatError("YouTube", ex.getMessage(), true));
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         }
@@ -426,10 +431,10 @@ public class URLGrabber implements Runnable {
             return;
         } catch (IOException ex) {
             if(ex.getMessage().equals("Server returned response code: 404")) {
-                event.getBot().sendMessage(event.getChannel(), formatError("Vimeo", "Vimeo video ID invalid or video is private."));
+                event.getBot().sendMessage(event.getChannel(), formatError("Vimeo", "Vimeo video ID invalid or video is private.", false));
             }
         } catch (Exception ex) {
-            event.getBot().sendMessage(event.getChannel(), formatError("Vimeo", ex.getMessage()));
+            event.getBot().sendMessage(event.getChannel(), formatError("Vimeo", ex.getMessage(), true));
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         }
@@ -485,7 +490,7 @@ public class URLGrabber implements Runnable {
             event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
         } catch (Exception ex) {
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-            event.getBot().sendMessage(event.getChannel(), formatError("URL", ex.getMessage()));
+            event.getBot().sendMessage(event.getChannel(), formatError("URL", ex.getMessage(), false));
             return;
         }
     }
