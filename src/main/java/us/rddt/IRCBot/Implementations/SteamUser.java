@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 
 /**
  * Queries and returns data about a given Steam user from the Steam Web API
@@ -105,7 +106,7 @@ public class SteamUser {
         HttpURLConnection conn = (HttpURLConnection)new URL("http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + Configuration.getSteamAPIKey() + "&steamids=" + steamId).openConnection();
         conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
         if(conn.getResponseCode() >= 400) {
-            throw new IOException("Server returned response code: " + conn.getResponseCode());
+            throw new IOException(IRCUtils.getHttpStatusErrorString(conn.getResponseCode()) + " (" + conn.getResponseCode() + ")");
         }
 
         BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -172,7 +173,7 @@ public class SteamUser {
 
             conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
             if(conn.getResponseCode() >= 400) {
-                throw new IOException("Server returned response code: " + conn.getResponseCode());
+                throw new IOException(IRCUtils.getHttpStatusErrorString(conn.getResponseCode()) + " (" + conn.getResponseCode() + ")");
             }
 
             /*

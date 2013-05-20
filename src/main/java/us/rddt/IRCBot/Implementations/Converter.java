@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 
 /**
  * Uses a Google API to perform conversions provided by users via a bot command.
@@ -67,7 +68,7 @@ public class Converter {
         HttpURLConnection conn = (HttpURLConnection)link.openConnection();
         conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
         if(conn.getResponseCode() >= 400) {
-            throw new IOException("Server returned response code: " + conn.getResponseCode());
+            throw new IOException(IRCUtils.getHttpStatusErrorString(conn.getResponseCode()) + " (" + conn.getResponseCode() + ")");
         }
 
         BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));

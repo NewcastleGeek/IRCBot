@@ -240,7 +240,7 @@ public class URLGrabber implements Runnable {
         }
         // Return an error if the response code is over 400
         if(conn.getResponseCode() >= 400) {
-            throw new IOException("Server returned response code: " + conn.getResponseCode());
+            throw new IOException(IRCUtils.getHttpStatusErrorString(conn.getResponseCode()) + " (" + conn.getResponseCode() + ")");
         }
         // No need to check validity of the URL - it's already been proven valid at this point
         // Get the Content-Type property from the HTTP headers so we can parse accordingly

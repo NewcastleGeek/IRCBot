@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 
 /**
  * Queries the Urban Dictionary for a definition for a provided string. The results
@@ -73,7 +74,7 @@ public class UrbanLookup {
         HttpURLConnection conn = (HttpURLConnection)lookupURL.openConnection();
         conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
         if(conn.getResponseCode() >= 400) {
-            throw new IOException("Server returned response code: " + conn.getResponseCode());
+            throw new IOException(IRCUtils.getHttpStatusErrorString(conn.getResponseCode()) + " (" + conn.getResponseCode() + ")");
         }
 
         BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));

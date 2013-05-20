@@ -34,6 +34,46 @@ public class IRCUtils {
     }
     
     /**
+     * Returns an error string appropriate for an HTTP status code.
+     * @param statusCode the HTTP status code
+     * @return the error string
+     */
+    public static String getHttpStatusErrorString(int statusCode) {
+    	switch(statusCode) {
+    		case 400:
+    			return "The request was syntatically invalid.";
+    		case 401:
+    			return "The request requires user authentication which was not provided.";
+    		case 403:
+    			return "The request was forbidden.";
+    		case 404:
+    			return "The request failed as the resource could not be found.";
+    		case 405:
+    			return "The method specified is not suitable for the request.";
+    		case 406:
+    			return "The server will not return in a format deemed acceptable in the client request.";
+    		case 408:
+    			return "The server did not receive a proper request during its timeout period.";
+    		case 410:
+    			return "The resource no longer exists.";
+    		case 500:
+    			return "The server experienced an internal server error and is incapable of processing the request.";
+    		case 501:
+    			return "The server does not implement the functionality required to process the request.";
+    		case 502:
+    			return "The server received an invalid response from a upstream provider.";
+    		case 503:
+    			return "The server is temporarily unavailable due to overloading or maintenance.";
+    		case 504:
+    			return "The server did not receive a response from a upstream provider in time.";
+    		case 505:
+    			return "The server does not support the HTTP version specified in the request.";
+    		default:
+    			return "The server could not process the request for an unknown reason.";	
+    	}
+    }
+    
+    /**
      * Returns a more user-friendly string containing the cipher suite of a HTTPS connection.
      * Java tends to return strings such as TLS_ECDHE_RSA_WITH_RC4_128_SHA, when we only really need to
      * show the user it's a 128-bit secured TLS connection.

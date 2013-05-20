@@ -16,6 +16,7 @@ import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 
 /**
  * Monitors a configured set of YouTube channels for newly uploaded videos.
@@ -62,7 +63,7 @@ public class YouTubeWatcher implements Runnable {
         HttpURLConnection conn = (HttpURLConnection)apiUrl.openConnection();
         conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
         if(conn.getResponseCode() >= 400) {
-            throw new IOException("Server returned response code: " + conn.getResponseCode());
+            throw new IOException(IRCUtils.getHttpStatusErrorString(conn.getResponseCode()) + " (" + conn.getResponseCode() + ")");
         }
 
         BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));

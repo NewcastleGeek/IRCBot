@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 
 /**
  * Using the reddit API, this class can return information about a provided reddit
@@ -73,7 +74,7 @@ public class RedditUser {
         HttpURLConnection conn = (HttpURLConnection)link.openConnection();
         conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
         if(conn.getResponseCode() >= 400) {
-            throw new IOException("Server returned response code: " + conn.getResponseCode());
+            throw new IOException(IRCUtils.getHttpStatusErrorString(conn.getResponseCode()) + " (" + conn.getResponseCode() + ")");
         }
 
         BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
