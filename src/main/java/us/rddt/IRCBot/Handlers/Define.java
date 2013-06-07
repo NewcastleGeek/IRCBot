@@ -56,13 +56,21 @@ public class Define implements Runnable {
          */
         UrbanLookup lookupResult = null;
         String toDefine = event.getMessage().substring(4);
+        int defNumber = 0;
+        
+        /*
+         * Parse out the definition number to retrieve from the message string.
+         */
+        if(event.getMessage().indexOf("[") != -1 && event.getMessage().indexOf("]") != -1) {
+        	defNumber = Integer.parseInt(event.getMessage().substring(event.getMessage().indexOf("[") + 1, event.getMessage().indexOf("]") - 1)) - 1;
+        }
         
         /*
          * Attempts to define the phrase via UrbanDictionary. If an exception occurs,
          * return a proper error message.
          */
         try {
-            lookupResult = UrbanLookup.getDefinition(formatLookup(toDefine.split(" ")));
+            lookupResult = UrbanLookup.getDefinition(formatLookup(toDefine.split(" ")), defNumber);
         } catch (ArrayIndexOutOfBoundsException ex) {
         	Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             event.respond("Error while extracting definition: " + IRCUtils.trimString(toDefine, 50) + " (" + ex.getMessage() + ")");

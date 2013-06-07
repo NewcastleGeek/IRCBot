@@ -29,6 +29,7 @@ public class UrbanLookup {
     private String word;
     private String definition;
     private String example;
+    private int defNumber;
     
     /**
      * Class constructor
@@ -43,11 +44,12 @@ public class UrbanLookup {
      * @param definition the word's definition
      * @param example an example of the word
      */
-    public UrbanLookup(boolean hasResult, String word, String definition, String example) {
+    public UrbanLookup(boolean hasResult, String word, String definition, String example, int defNumber) {
         this.hasResult = hasResult;
         this.word = word;
         this.definition = definition;
         this.example = example;
+        this.defNumber = defNumber;
     }
     
     /**
@@ -57,7 +59,7 @@ public class UrbanLookup {
      * @throws IOException if the download fails
      * @throws JSONException if the JSON cannot be parsed
      */
-    public static UrbanLookup getDefinition(String toDefine) throws IOException, JSONException {
+    public static UrbanLookup getDefinition(String toDefine, int defNumber) throws IOException, JSONException {
         URL lookupURL = null;
         StringBuilder jsonToParse = new StringBuilder();
         String buffer;
@@ -89,12 +91,13 @@ public class UrbanLookup {
         
         JSONObject lookupResult = new JSONObject(jsonToParse.toString());
         if(!lookupResult.getString("result_type").equals("exact")) {
-            return new UrbanLookup(false, null, null, null);
+            return new UrbanLookup(false, null, null, null, defNumber);
         } else {
             return new UrbanLookup(true,
-                    lookupResult.getJSONArray("list").getJSONObject(0).getString("word"),
-                    lookupResult.getJSONArray("list").getJSONObject(0).getString("definition"),
-                    lookupResult.getJSONArray("list").getJSONObject(0).getString("example"));
+                    lookupResult.getJSONArray("list").getJSONObject(defNumber).getString("word"),
+                    lookupResult.getJSONArray("list").getJSONObject(defNumber).getString("definition"),
+                    lookupResult.getJSONArray("list").getJSONObject(defNumber).getString("example"),
+                    defNumber);
         }
     }
 
@@ -128,5 +131,13 @@ public class UrbanLookup {
      */
     public String getExample() {
         return example;
+    }
+    
+    /**
+     * Returns the definition number
+     * @return the definition number
+     */
+    public int getDefNumber() {
+    	return defNumber;
     }
 }
