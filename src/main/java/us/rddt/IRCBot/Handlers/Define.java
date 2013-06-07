@@ -61,8 +61,15 @@ public class Define implements Runnable {
         /*
          * Parse out the definition number to retrieve from the message string.
          */
-        if(event.getMessage().indexOf("[") != -1 && event.getMessage().indexOf("]") != -1) {
-        	defNumber = Integer.parseInt(event.getMessage().substring(event.getMessage().indexOf("[") + 1, event.getMessage().indexOf("]") - 1)) - 1;
+        if(toDefine.indexOf("[") != -1 && toDefine.indexOf("]") != -1) {
+        	try {
+        		defNumber = Integer.parseInt(toDefine.substring(toDefine.indexOf("[") + 1, toDefine.indexOf("]"))) - 1;
+        	} catch (NumberFormatException ex) {
+        		Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
+        		event.respond("Error while extracting definition: An invalid definition number value was provided.");
+        		return;
+        	}
+        	toDefine = toDefine.substring(0, toDefine.indexOf("["));
         }
         
         /*
@@ -89,14 +96,14 @@ public class Define implements Runnable {
          */
         if(lookupResult.hasResult()) {
             /*
-             * Don't display the result if the combined total of the definition and example is greater than 950 characters.
+             * Don't display the result if the combined total of the definition and example is greater than 940 characters.
              * This prevents channel floods and server disconnections for excess flood.
              * Definitions printed to the channel shouldn't take up more than two messages.
              */
-            if(lookupResult.getDefinition().length() + lookupResult.getExample().length() > 950) {
+            if(lookupResult.getDefinition().length() + lookupResult.getExample().length() > 940) {
                 event.respond("The definition for '" + lookupResult.getWord() + "' is too long to display in an IRC message. To view the definition online, follow this link: http://www.urbandictionary.com/define.php?term=" + lookupResult.getWord());
             } else {
-                event.respond(lookupResult.getWord() + ": " + lookupResult.getDefinition() + " (Example: " + lookupResult.getExample() + ")");
+                event.respond(lookupResult.getWord() + " (#" + lookupResult.getDefNumber() + "): " + lookupResult.getDefinition() + " (Example: " + lookupResult.getExample() + ")");
             }
         } else {
             event.respond("The definition for '" + toDefine + "' does not exist.");
