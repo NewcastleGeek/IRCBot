@@ -61,34 +61,38 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      */
     private boolean checkForCommands(MessageEvent<PircBotX> event) {
         /*
+         * Trim any leading or trailing whitespace.
+         */
+        String message = event.getMessage().trim();
+        /*
          * Most commands below spawn threads to prevent blocking.
          */
-        if(event.getMessage().charAt(0) == Configuration.getCommandPrefix()) {
-            if(event.getMessage().substring(1).equals("who last")) {
+        if(message.charAt(0) == Configuration.getCommandPrefix()) {
+            if(message.substring(1).equals("who last")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     new Thread(new Shouts(event, Shouts.ShoutEvents.LAST_COMMAND)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).equals("who list")) {
+            if(message.substring(1).equals("who list")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     new Thread(new Shouts(event, Shouts.ShoutEvents.LIST_COMMAND)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("who user")) {
+            if(message.substring(1).startsWith("who user")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     new Thread(new Shouts(event, Shouts.ShoutEvents.LIST_USER_COMMAND)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).equals("who top10")) {
+            if(message.substring(1).equals("who top10")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     new Thread(new Shouts(event, Shouts.ShoutEvents.TOP10_COMMAND)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("who delete --purge ")) {
+            if(message.substring(1).startsWith("who delete --purge ")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     if(isUserOperator(event.getUser(), event.getChannel())) {
                         new Thread(new Shouts(event, Shouts.ShoutEvents.PURGE_COMMAND)).start();
@@ -96,7 +100,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("who delete ")) {
+            if(message.substring(1).startsWith("who delete ")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     if(isUserOperator(event.getUser(), event.getChannel())) {
                         new Thread(new Shouts(event, Shouts.ShoutEvents.DELETE_COMMAND)).start();
@@ -104,7 +108,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("who undelete ")) {
+            if(message.substring(1).startsWith("who undelete ")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     if(isUserOperator(event.getUser(), event.getChannel())) {
                         new Thread(new Shouts(event, Shouts.ShoutEvents.UNDELETE_COMMAND)).start();
@@ -112,132 +116,132 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("who ")) {
+            if(message.substring(1).startsWith("who ")) {
                 if(!Configuration.getDisabledFunctions().contains("shout")) {
                     new Thread(new Shouts(event, Shouts.ShoutEvents.LOOKUP_COMMAND)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("calc ")) {
+            if(message.substring(1).startsWith("calc ")) {
                 if(!Configuration.getDisabledFunctions().contains("calc")) {
                     new Thread(new Calculator(event)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("convert ")) {
+            if(message.substring(1).startsWith("convert ")) {
                 if(!Configuration.getDisabledFunctions().contains("convert")) {
                     new Thread(new Convert(event)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("decide ")) {
+            if(message.substring(1).startsWith("decide ")) {
                 if(!Configuration.getDisabledFunctions().contains("fortune")) {
                     new Thread(new Fortune(event)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("seen ")) {
+            if(message.substring(1).startsWith("seen ")) {
                 if(!Configuration.getDisabledFunctions().contains("seen")) {
                     new Thread(new Seen(event)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("ud ")) {
+            if(message.substring(1).startsWith("ud ")) {
                 if(!Configuration.getDisabledFunctions().contains("urbandictionary")) {
                     new Thread(new Define(event)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("g ")) {
+            if(message.substring(1).startsWith("g ")) {
                 if(!Configuration.getDisabledFunctions().contains("google")) {
                     new Thread(new Search(event)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("steam ")) {
+            if(message.substring(1).startsWith("steam ")) {
                 if(!Configuration.getDisabledFunctions().contains("steamquery")) {
                     new Thread(new SteamUserQuery(event)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).equals("statistics")) {
+            if(message.substring(1).equals("statistics")) {
                 if(isUserAdmin(event.getUser())) {
                     new Thread(new StatisticsTask(true)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).equals("disablestatistics")) {
+            if(message.substring(1).equals("disablestatistics")) {
                 if(isUserOperator(event.getUser(), event.getChannel())) {
                     new Thread(new StatisticsHandler(event, StatisticsModes.ADD)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).equals("enablestatistics")) {
+            if(message.substring(1).equals("enablestatistics")) {
                 if(isUserOperator(event.getUser(), event.getChannel())) {
                     new Thread(new StatisticsHandler(event, StatisticsModes.REMOVE)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("status set ")) {
+            if(message.substring(1).startsWith("status set ")) {
                 if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
                     new Thread(new GameStatus(event, GameStatusModes.SET)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).equals("status reset")) {
+            if(message.substring(1).equals("status reset")) {
                 if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
                     new Thread(new GameStatus(event, GameStatusModes.RESET)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).equals("status all")) {
+            if(message.substring(1).equals("status all")) {
                 if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
                     new Thread(new GameStatus(event, GameStatusModes.ALL)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("status user ")) {
+            if(message.substring(1).startsWith("status user ")) {
                 if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
                     new Thread(new GameStatus(event, GameStatusModes.USER)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("status game ")) {
+            if(message.substring(1).startsWith("status game ")) {
                 if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
                     new Thread(new GameStatus(event, GameStatusModes.GAME)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("status add ")) {
+            if(message.substring(1).startsWith("status add ")) {
                 if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
                     new Thread(new GameStatus(event, GameStatusModes.ADD)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("status delete ")) {
+            if(message.substring(1).startsWith("status delete ")) {
                 if(!Configuration.getDisabledFunctions().contains("gamestatus") && isUserAdmin(event.getUser())) {
                     new Thread(new GameStatus(event, GameStatusModes.DELETE)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("votekick ")) {
+            if(message.substring(1).startsWith("votekick ")) {
                 if(!Configuration.getDisabledFunctions().contains("votekick")) {
                     new Thread(new Votekick(event, VotekickModes.UPDATE_VOTEKICK)).start();
                 }
             }
-            if(event.getMessage().substring(1).startsWith("appendtopic ")) {
+            if(message.substring(1).startsWith("appendtopic ")) {
                 if(isUserOperator(event.getUser(), event.getChannel())) {
                     new Thread(new Topic(event, TopicUpdates.ADD_TO_TOPIC)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).startsWith("removetopic ")) {
+            if(message.substring(1).startsWith("removetopic ")) {
                 if(isUserOperator(event.getUser(), event.getChannel())) {
                     new Thread(new Topic(event, TopicUpdates.REMOVE_FROM_TOPIC)).start();
                     return true;
                 }
             }
-            if(event.getMessage().substring(1).equals("leave")) {
+            if(message.substring(1).equals("leave")) {
                 if(isUserOperator(event.getUser(), event.getChannel())) {
                     event.getBot().partChannel(event.getChannel());
                     return true;
@@ -247,51 +251,51 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             /*
              * User mode change events
              */
-            if(event.getMessage().substring(1).startsWith("kick ") || event.getMessage().substring(1).startsWith("k ")) {
+            if(message.substring(1).startsWith("kick ") || message.substring(1).startsWith("k ")) {
                 new Thread(new UserMode(event, UserModes.KICK)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("kickban ") || event.getMessage().substring(1).startsWith("kb ")) {
+            if(message.substring(1).startsWith("kickban ") || message.substring(1).startsWith("kb ")) {
                 new Thread(new UserMode(event, UserModes.BAN)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("owner ")) {
+            if(message.substring(1).startsWith("owner ")) {
                 new Thread(new UserMode(event, UserModes.OWNER)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("deowner ")) {
+            if(message.substring(1).startsWith("deowner ")) {
                 new Thread(new UserMode(event, UserModes.DEOWNER)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("protect ")) {
+            if(message.substring(1).startsWith("protect ")) {
                 new Thread(new UserMode(event, UserModes.SUPEROP)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("deprotect ")) {
+            if(message.substring(1).startsWith("deprotect ")) {
                 new Thread(new UserMode(event, UserModes.DESUPEROP)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("op ")) {
+            if(message.substring(1).startsWith("op ")) {
                 new Thread(new UserMode(event, UserModes.OP)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("deop ")) {
+            if(message.substring(1).startsWith("deop ")) {
                 new Thread(new UserMode(event, UserModes.DEOP)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("halfop ")) {
+            if(message.substring(1).startsWith("halfop ")) {
                 new Thread(new UserMode(event, UserModes.HALFOP)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("dehalfop ")) {
+            if(message.substring(1).startsWith("dehalfop ")) {
                 new Thread(new UserMode(event, UserModes.DEHALFOP)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("voice ")) {
+            if(message.substring(1).startsWith("voice ")) {
                 new Thread(new UserMode(event, UserModes.VOICE)).start();
                 return true;
             }
-            if(event.getMessage().substring(1).startsWith("devoice ")) {
+            if(message.substring(1).startsWith("devoice ")) {
                 new Thread(new UserMode(event, UserModes.DEVOICE)).start();
                 return true;
             }
@@ -417,29 +421,34 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @param event the PrivateMessageEvent to parse
      */
     public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) {
-        if(event.getMessage().startsWith("help")) {
+        /*
+         * Trim any leading or trailing whitespace.
+         */
+        String message = event.getMessage().trim();
+        
+        if(message.startsWith("help")) {
             new Thread(new Help(event)).start();
         }
         else if(isUserAdmin(event.getUser())) {
-            if(event.getMessage().startsWith("announce ")) {
-                sendAnnouncement(event.getBot(), false, event.getMessage());
+            if(message.startsWith("announce ")) {
+                sendAnnouncement(event.getBot(), false, message);
                 return;
             }
-            if(event.getMessage().startsWith("notice ")) {
-                sendAnnouncement(event.getBot(), true, event.getMessage());
+            if(message.startsWith("notice ")) {
+                sendAnnouncement(event.getBot(), true, message);
                 return;
             }
-            if(event.getMessage().equals("cleanup")) {
+            if(message.equals("cleanup")) {
                 new Thread(new DatabaseCleaner()).start();
                 event.respond("Performing database cleanup now!");
                 return;
             }
-            if(event.getMessage().equals("disconnect")) {
+            if(message.equals("disconnect")) {
                 Configuration.getLogger().write(Level.INFO, "Disconnecting due to administrator request");
                 event.getBot().quitServer("Disconnecting due to administrator request");
                 System.exit(0);
             }
-            if(event.getMessage().equals("reload")) {
+            if(message.equals("reload")) {
                 Configuration.getLogger().write(Level.INFO, "Reloading configuration due to administrator request...");
                 sendGlobalMessage(event.getBot(), "Reloading configuration...");
                 try {
@@ -453,7 +462,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 sendGlobalMessage(event.getBot(), "Successfully reloaded configuration.");
                 return;
             }
-            if(event.getMessage().equals("restart")) {
+            if(message.equals("restart")) {
                 Configuration.getLogger().write(Level.INFO, "Restarting due to administrator request...");
                 sendGlobalMessage(event.getBot(), "Restarting due to administrator request...");
                 try {
