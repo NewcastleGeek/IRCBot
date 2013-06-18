@@ -97,7 +97,7 @@ public class UrbanLookup {
                     lookupResult.getJSONArray("list").getJSONObject(defNumber).getString("word"),
                     lookupResult.getJSONArray("list").getJSONObject(defNumber).getString("definition"),
                     lookupResult.getJSONArray("list").getJSONObject(defNumber).getString("example"),
-                    defNumber);
+                    defNumber + 1);
         }
     }
 
